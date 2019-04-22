@@ -19,6 +19,7 @@ module Umami
       # This saves us from having to know/code the identity attribute for each
       # resource (i.e. File is :path, User is :username, etc).
       def desciption(resource)
+        identity = resource.identity
         if identity.is_a? Hash # #identity could return a Hash. Take the first value.
           identity = identity.values.first
         else
@@ -52,10 +53,10 @@ module Umami
           else
             gem_binary = "'#{gem_binary}'"
           end
-          test = ["Gem '#{package_name}' is installed via the #{gem_binary} gem"]
+          test = ["#Gem '#{package_name}' is installed via the #{gem_binary} gem"]
           test << "describe gem('#{package_name}', #{gem_binary}) do"
         else
-          test = ["Gem '#{package_name}' is installed via the #{gem_binary} gem"]
+          test = ["#Gem '#{package_name}' is installed via the #{gem_binary} gem"]
           test << "describe gem('#{package_name}') do"
         end
         test << 'it { should be_installed }'
@@ -100,7 +101,7 @@ module Umami
           end
         end
         unless resource.mode.nil?
-          unless resource.mode.is_a?(String) && !resource.mode.empty?
+          unless resource.mode.is_a?(Integer) && !resource.mode.empty?
             test << "it { should be_mode '#{resource.mode}' }"
           end
         end
@@ -146,6 +147,10 @@ module Umami
         end
         test << 'end'
         test.join("\n")
+      end
+
+      def test_yum_package(resource)
+        test_package(resource)
       end
     end
   end

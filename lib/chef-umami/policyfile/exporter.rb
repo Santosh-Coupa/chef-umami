@@ -54,24 +54,31 @@ module Umami
         install_service.run
       end
 
-      def fake_client_key
-        "#{export_path}/umami.pem"
+     def fake_client_key
+        #"#{export_path}/umami.pem"
+        "/home/santosh_jadhav/config.rb"
       end
 
       def cp_fake_client_key
         # Create a fake client cert based on a dummy cert we have laying around.
         fake_client_key_src = File.join(File.dirname(__FILE__), %w(.. .. .. support umami.pem))
         FileUtils.cp(fake_client_key_src, fake_client_key)
+        FileUtils.cp_r('/home/santosh_jadhav/trusted_certs',"#{export_path}/.chef")
       end
 
       def update_chef_config
         File.open(chef_config_file, 'a') do |f|
-          f.puts "chef_server_url 'http://127.0.0.1:8889'"
+          #f.puts "chef_server_url 'http://127.0.0.1:8889'"
+          f.puts "chef_server_url 'https://devrls820srv3.int.coupadev.com/organizations/local'"
           f.puts "cookbook_path ['#{export_path}/cookbook_artifacts']"
-          f.puts "client_key '#{fake_client_key}'"
-          f.puts "node_name 'umami-node'"
+          f.puts "validation_client_name   'local-validator'"
+          f.puts "validation_key '/etc/chef/local-validator.pem'"
+          f.puts "ssl_verify_mode ':verify_none'"
+          f.puts "client_key '/etc/chef/admin.pem'"
+          f.puts "node_name 'admin'"
+          f.puts "trusted_certs_dir '/etc/chef/trusted_certs'"
         end
-      end
+      end       
 
       # Export the cookbook and prepare a chef-zero-compatible directory.
       # We'll use this as a temporary launch pad for things, as needed, akin

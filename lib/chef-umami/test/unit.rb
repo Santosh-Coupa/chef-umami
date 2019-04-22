@@ -15,6 +15,7 @@
 require 'chef-umami/test'
 require 'chef-umami/helpers/os'
 require 'chef-umami/helpers/filetools'
+require 'pry'
 
 module Umami
   class Test
@@ -48,7 +49,7 @@ module Umami
         "require_relative '../spec_helper'\n" \
         "\n" \
         "describe '#{cookbook}::#{recipe}' do\n" \
-        "let(:chef_run) { ChefSpec::ServerRunner.new(platform: '#{os[:platform]}', version: '#{os[:version]}').converge(described_recipe) }"
+        "let(:chef_run) { ChefSpec::ServerRunner.new(platform: '#{os[:platform]}').converge(described_recipe) }"
       end
 
       def write_spec_helper
@@ -60,11 +61,12 @@ module Umami
 
       def write_test(resource = nil)
         state_attrs = [] # Attribute hash to be used with #with()
-        resource.state.each do |attr, value|
+        resource.state_for_resource_reporter.each do |attr, value|
           next if value.nil? || (value.respond_to?(:empty) && value.empty?)
           if value.is_a? String
             value = value.gsub("'", "\\\\'") # Escape any single quotes in the value.
           end
+          binding.pry
           state_attrs << "#{attr}: '#{value}'"
         end
         action = ''

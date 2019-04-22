@@ -92,6 +92,7 @@ module Umami
       puts "\nExecuting chef-client compile phase..."
       # Define Chef::Config['config_file'] lest Ohai complain.
       Chef::Config['config_file'] = exporter.chef_config_file
+      sleep 60
       chef_client.compile
       # Build a hash of all the recipes' resources, keyed by the canonical
       # name of the recipe (i.e. ohai::default).
