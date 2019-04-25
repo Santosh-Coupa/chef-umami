@@ -52,6 +52,11 @@ module Umami
                 " (DEFAULT: #{options[:unit_tests]})") do |unit_tests|
           options[:unit_tests] = unit_tests
         end
+
+        opts.on('-c', '--config-json', 'Json config file' \
+                " (DEFAULT: #{options[:json_config]})") do |json_config|
+          options[:json_config] = json_config
+        end
         opts.on('-v', '--version', 'Show version and exit') {
           puts "chef-umami v#{Umami::VERSION}"
           exit
