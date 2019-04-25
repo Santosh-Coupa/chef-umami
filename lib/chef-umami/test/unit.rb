@@ -66,8 +66,13 @@ module Umami
           if value.is_a? String
             value = value.gsub("'", "\\\\'") # Escape any single quotes in the value.
           end
-          binding.pry
-          state_attrs << "#{attr}: '#{value}'"
+          if attr == :variables
+            state_attrs << "#{attr}: #{value}"
+          elsif[true, false].include? value
+            state_attrs << "#{attr}: #{value}"
+          else
+            state_attrs << "#{attr}: '#{value}'"
+          end
         end
         action = ''
         if resource.action.is_a? Array

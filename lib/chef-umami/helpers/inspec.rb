@@ -150,7 +150,15 @@ module Umami
       end
 
       def test_yum_package(resource)
-        test_package(resource)
+        test << "describe package('#{resource.package_name}') do"
+        if !resource.version.nil? && !resource.version.empty?
+          test << "it { should be_installed.with_version('#{resource.version}') }"
+        else
+        test << 'it { should be_installed }'
+        end
+
+        test << 'end'
+        test.join("\n")  
       end
     end
   end

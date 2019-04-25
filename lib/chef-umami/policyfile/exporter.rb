@@ -16,6 +16,7 @@ require 'chef-dk/policyfile_services/install'
 require 'chef-dk/policyfile_services/export_repo'
 require 'chef-dk/ui'
 require 'tmpdir' # Extends Dir
+require 'json'
 
 module Umami
   class Policyfile
@@ -60,23 +61,30 @@ module Umami
       end
 
       def cp_fake_client_key
+        para = json_file
         # Create a fake client cert based on a dummy cert we have laying around.
         fake_client_key_src = File.join(File.dirname(__FILE__), %w(.. .. .. support umami.pem))
         FileUtils.cp(fake_client_key_src, fake_client_key)
-        FileUtils.cp_r('/home/santosh_jadhav/trusted_certs',"#{export_path}/.chef")
+        FileUtils.cp_r('#{para[:trusted_certs_dir]',"#{export_path}/.chef")
       end
 
       def update_chef_config
+        para = json_file
         File.open(chef_config_file, 'a') do |f|
           #f.puts "chef_server_url 'http://127.0.0.1:8889'"
-          f.puts "chef_server_url 'https://devrls820srv3.int.coupadev.com/organizations/local'"
+          #f.puts "chef_server_url 'https://devrls820srv3.int.coupadev.com/organizations/local'"
+          f.puts "chef_server_url '#{para[:chef_server_url]}'"
           f.puts "cookbook_path ['#{export_path}/cookbook_artifacts']"
-          f.puts "validation_client_name   'local-validator'"
-          f.puts "validation_key '/etc/chef/local-validator.pem'"
+          #f.puts "validation_client_name   'local-validator'"
+          f.puts "validation_client_name '#{para[:validation_client_name]}'"
+          #f.puts "validation_key '/etc/chef/local-validator.pem'"
+          f.puts "validation_key '#{para[:validation_key]}'"
           f.puts "ssl_verify_mode ':verify_none'"
-          f.puts "client_key '/etc/chef/admin.pem'"
-          f.puts "node_name 'admin'"
-          f.puts "trusted_certs_dir '/etc/chef/trusted_certs'"
+          #f.puts "client_key '/etc/chef/admin.pem'"
+          f.puts "client_key '#{para[:client_key]}'"
+          #f.puts "node_name 'admin'"
+          f.puts "node_name '#{para[:node_name]}'"
+          f.puts "trusted_certs_dir '#{para[:trusted_certs_dir]}'"
         end
       end       
 
@@ -103,6 +111,11 @@ module Umami
         cp_fake_client_key
         update_chef_config
       end
+
+      def json_file
+        file = File.read('/tmp/config.json')
+        data_hash = JSON.parse(file)
+      end  
     end
   end
 end

@@ -86,7 +86,7 @@ module Umami
       puts "\nExporting the policy, related cookbooks, and a valid client configuration..."
       exporter.export
       Chef::Config.from_file(exporter.chef_config_file)
-      chef_zero_server.start
+      #chef_zero_server.start
       puts "\nUploading the policy and related cookbooks..."
       uploader.upload
       puts "\nExecuting chef-client compile phase..."
