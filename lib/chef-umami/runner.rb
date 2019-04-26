@@ -84,8 +84,20 @@ module Umami
     def run
       validate_lock_file!
       puts "\nExporting the policy, related cookbooks, and a valid client configuration..."
+      FileUtils.cp(config[:json_config], '/tmp/config.json')
       exporter.export
+      file_names = [exporter.chef_config_file]
+      file_names.each do |file_name|
+         text = File.read(file_name)
+         new_contents = text.gsub(/policy_group 'local'/, "policy_group 'dev'")
+        # To merely print the contents of the file, use:
+        puts new_contents
+
+        # To write changes to the file, use:
+        File.open(file_name, "w") {|file| file.puts new_contents }
+      end
       Chef::Config.from_file(exporter.chef_config_file)
+      Chef::Config['policy_group'] ='dev'
       #chef_zero_server.start
       puts "\nUploading the policy and related cookbooks..."
       uploader.upload
