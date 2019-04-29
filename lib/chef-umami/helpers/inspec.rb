@@ -108,6 +108,7 @@ module Umami
           else
             unless resource.mode.is_a?(String) && !resource.mode.empty?
                 test << "it { should be_mode '#{resource.mode}' }"
+            end
           end
         end
         test << 'end'
