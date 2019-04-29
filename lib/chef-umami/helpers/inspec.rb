@@ -101,8 +101,13 @@ module Umami
           end
         end
         unless resource.mode.nil?
-          unless resource.mode.is_a?(Integer) && !resource.mode.empty?
-            test << "it { should be_mode '#{resource.mode}' }"
+          if resource.mode.is_a?(String)
+            unless resource.mode.is_a?(Integer) && !resource.mode.empty?
+                test << "it { should be_mode '#{resource.mode}' }"
+            end
+          else
+            unless resource.mode.is_a?(String) && !resource.mode.empty?
+                test << "it { should be_mode '#{resource.mode}' }"
           end
         end
         test << 'end'
@@ -150,15 +155,10 @@ module Umami
       end
 
       def test_yum_package(resource)
-        test << "describe package('#{resource.package_name}') do"
-        if !resource.version.nil? && !resource.version.empty?
-          test << "it { should be_installed.with_version('#{resource.version}') }"
-        else
+        test = ["describe package('#{resource.package_name}') do"]
         test << 'it { should be_installed }'
-        end
-
         test << 'end'
-        test.join("\n")  
+        test.join("\n")
       end
     end
   end
