@@ -47,19 +47,34 @@ module Umami
       # binary of a symbol representing that context.
       def test_gem_package(resource, gem_binary = nil)
         package_name = resource.package_name
-        if gem_binary
+        if !resource.gem_binary.nil? and !resource.gem_binary.empty?
+          gem_binary = resource.gem_binary
+          test = ["describe gem('#{package_name}', #{gem_binary}) do"]
+        elsif gem_binary
           if gem_binary.is_a? Symbol
             gem_binary = gem_binary.inspect # Stringify the symbol.
           else
             gem_binary = "'#{gem_binary}'"
           end
-          test = ["#Gem '#{package_name}' is installed via the #{gem_binary} gem"]
-          test << "describe gem('#{package_name}', #{gem_binary}) do"
+          #test = ["#Gem '#{package_name}' is installed via the #{gem_binary} gem"]
+          test = ["describe gem('#{package_name}', #{gem_binary}) do"]
         else
-          test = ["#Gem '#{package_name}' is installed via the #{gem_binary} gem"]
-          test << "describe gem('#{package_name}') do"
+          #test = ["#Gem '#{package_name}' is installed via the #{gem_binary} gem"]
+          test = ["describe gem('#{package_name}') do"]
         end
         test << 'it { should be_installed }'
+        unless resource.version.nil?
+            unless !resource.version.is_a?(String) && !resource.version.empty?
+              ver = resource.version.split('.')
+              if ver[-1] == 0
+                res_ver = ver[0..-2].join('.')
+              else
+                res_ver = resource.version
+              end
+              #test << "it { should belong_to_primary_group '#{resource.gid}' }"
+              test << "its('version') { should include /#{res_ver}/ }"
+            end
+          end
         test << 'end'
         test.join("\n")
       end
@@ -69,14 +84,12 @@ module Umami
       end
 
       def test_cron(resource)
-        test = [desciption(resource)]
-        cron_entry = "#{resource.minute} "  \
-                     "#{resource.hour} "    \
-                     "#{resource.day} "     \
-                     "#{resource.month} "   \
-                     "#{resource.weekday} " \
-                     "#{resource.command}"
-        test << "it { should have_entry('#{cron_entry}').with_user('#{resource.user}') }"
+        test = ["describe crontab('#{resource.user}').commands('#{resource.command}') do"]
+        test << "its('minutes') { should cmp '#{resource.minute}' }"
+        test << "its('hours') { should cmp '#{resource.hour}' }"
+        test << "its('days') { should cmp '#{resource.day}' }"
+        test << "its('weekdays') { should cmp '#{resource.weekday}' }"
+        test << "its('month') { should cmp '#{resource.month}' }"
         test << 'end'
         test.join("\n")
       end
@@ -103,11 +116,12 @@ module Umami
         unless resource.mode.nil?
           if resource.mode.is_a?(String)
             unless resource.mode.is_a?(Integer) && !resource.mode.empty?
-                test << "it { should be_mode '#{resource.mode}' }"
+                cv = resource.mode.to_i(8)
+                test << "it { should be_mode #{cv} }"
             end
           else
             unless resource.mode.is_a?(String) && !resource.mode.empty?
-                test << "it { should be_mode '#{resource.mode}' }"
+                test << "it { should be_mode #{resource.mode} }"
             end
           end
         end
@@ -122,34 +136,66 @@ module Umami
 
       def test_group(resource)
         test = [desciption(resource)]
-        test << 'it { should exist }'
+        if !resource.action.include? :remove
+          test << 'it { should exist }'
+        else
+          test << "it { should_not exist }"
+        end
         test << 'end'
         test.join("\n")
       end
 
       def test_package(resource)
         test = [desciption(resource)]
-        if !resource.version.nil? && !resource.version.empty?
-          test << "it { should be_installed.with_version('#{resource.version}') }"
+        if !resource.action.include? :remove
+          if !resource.version.nil? && !resource.version.empty?
+            test << "it { should be_installed }"
+            test << "its('version') { should include '#{resource.version}' }"
+          else
+            test << 'it { should be_installed }'
+          end
         else
-          test << 'it { should be_installed }'
-        end
+            test << 'it { should_not be_installed }'
+        end    
         test << 'end'
         test.join("\n")
       end
 
       def test_user(resource)
         test = [desciption(resource)]
-        test << 'it { should exist }'
-        # Guard for GIDs rather than strings. Chef aliases the #group method
-        # to the #gid method.
-        unless resource.gid.nil?
-          unless resource.gid.is_a?(String) && !resource.gid.empty?
-            test << "it { should belong_to_primary_group '#{resource.gid}' }"
+        if !resource.action.include? :remove
+          test << 'it { should exist }'
+          # Guard for GIDs rather than strings. Chef aliases the #group method
+          # to the #gid method.
+          unless resource.gid.nil?
+            unless resource.gid.is_a?(String) && !resource.gid.empty?
+              #test << "it { should belong_to_primary_group '#{resource.gid}' }"
+              test << "its('gid') { should eq #{resource.gid}}"
+            end
           end
-        end
-        if !resource.home.nil? && !resource.home.empty?
-          test << "it { should have_home_directory '#{resource.home}' }"
+
+          unless resource.uid.nil?
+            unless resource.uid.is_a?(String) && !resource.uid.empty?
+              #test << "it { should belong_to_primary_group '#{resource.gid}' }"
+              test << "its('uid') { should eq #{resource.uid}}"
+            end
+          end
+
+          unless resource.group.nil?
+            if resource.gid.nil? or resource.group != resource.gid
+               unless resource.group.is_a?(Integer) && !resource.group.empty?
+                 test << "its('group') { should eq '#{resource.group}'}"
+               end
+            end
+          end
+          #if !resource.groups.nil? && !resource.groups.empty?
+          #  test << "its('groups') { should eq #{resource.groups}"
+          #end  
+          if !resource.shell.nil? && !resource.shell.empty?
+            test << "its('shell') { should eq '#{resource.shell}'}"
+          end
+        else
+          test << "it { should_not exist }"
         end
         test << 'end'
         test.join("\n")
@@ -158,6 +204,34 @@ module Umami
       def test_yum_package(resource)
         test = ["describe package('#{resource.package_name}') do"]
         test << 'it { should be_installed }'
+        test << 'end'
+        test.join("\n")
+      end
+
+      def test_sysctl_param(resource)
+        test = ["describe kernel_parameter('#{resource.name}') do"]
+        test << "its('value') { should eq #{resource.value} }"
+        test << 'end'
+        test.join("\n")
+      end
+
+      def test_service(resource)
+        test = ["describe service('#{resource.name}') do"]
+        test << "it { should be_installed }"
+        if resource.action.include(:start) 
+          test << "it { should be_running }"
+        end
+        if resource.action.include(:enable)
+          test << "it {should be_enabled}"
+        end
+        test << 'end'
+        test.join("\n")
+      end
+
+      def test_link(resource)
+        test = ["describe file('#{resource.name}') do"]
+        test << "it { should be_symlink }"
+        test << "it { should be_linked_to '#{resource.to}' }"
         test << 'end'
         test.join("\n")
       end

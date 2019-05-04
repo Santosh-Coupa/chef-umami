@@ -70,14 +70,13 @@ module Umami
           (cookbook, recipe) = canonical_recipe.split('::')
           content = [preamble(cookbook, recipe)]
           resources.each do |resource|
-            content << write_test(resource)
+            content << write_test(resource) if !resource.only_if.empty? and resource.only_if[0].continue?
           end
           test_file_name = test_file_path(cookbook, recipe)
           test_file_content = content.join("\n") + "\n"
           write_file(test_file_name, test_file_content)
           test_files_written << test_file_name
         end
-
         enforce_styling(test_root)
 
         unless test_files_written.empty?
