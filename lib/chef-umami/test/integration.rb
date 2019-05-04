@@ -15,6 +15,7 @@
 require 'chef-umami/test'
 require 'chef-umami/helpers/inspec'
 require 'chef-umami/helpers/filetools'
+require 'pry'
 
 module Umami
   class Test
@@ -65,12 +66,19 @@ module Umami
       end
 
       def generate(recipe_resources = {})
+        binding.pry
         test_files_written = []
         recipe_resources.each do |canonical_recipe, resources|
           (cookbook, recipe) = canonical_recipe.split('::')
           content = [preamble(cookbook, recipe)]
           resources.each do |resource|
-            content << write_test(resource) if !resource.only_if.empty? and resource.only_if[0].continue?
+            if !resource.only_if.empty?
+               if resource.only_if[0].continue?
+                  content << write_test(resource) 
+               end
+            else
+               content << write_test(resource)
+            end
           end
           test_file_name = test_file_path(cookbook, recipe)
           test_file_content = content.join("\n") + "\n"
