@@ -145,7 +145,7 @@ module Umami
       end
 
       def test_package(resource)
-        data  = JSON.parse(File.read(get_package_json_file)
+        data  = JSON.parse(File.read(get_package_json_file))
         if data.keys.include? resource.package_name
           package_name = data[resource.package_name]['name']
           test = ["describe package('#{package_name}') do"]
