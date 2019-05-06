@@ -59,17 +59,15 @@ module Umami
           test = ["describe gem('#{package_name}', '#{gem_binary}') do"]
         else
           test = ["describe gem('#{package_name}') do"]
-        end
-        test << 'it { should be_installed }'
+        end 
+          test << 'it { should be_installed }'
         unless resource.version.nil?
             unless !resource.version.is_a?(String) && !resource.version.empty?
-              #ver = resource.version.split('.')
-              #if ver[-1] == "0"
-              #  res_ver = ver[0..-2].join('.')
-              #else
-              #  res_ver = resource.version
-              #end
-              test << "its('versions') { should include '#{resource.version}' }"
+              if check_in_array(resource.action,:remove)
+                test << "its('versions') { should_not include '#{resource.version}' }"
+              else 
+                test << "its('versions') { should include '#{resource.version}' }"
+              end
             end
           end
         test << 'end'
