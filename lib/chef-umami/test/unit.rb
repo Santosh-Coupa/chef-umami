@@ -36,7 +36,8 @@ module Umami
       end
 
       def test_file(recipe = '')
-        "#{test_root}/#{recipe}_spec.rb"
+        servertype = get_server_details
+        "#{test_root}/#{servertype}/#{recipe}_spec.rb"
       end
 
       def spec_helper_path
@@ -127,6 +128,12 @@ module Umami
             puts "\t#{f}"
           end
         end
+      end
+
+      def get_server_details()
+        host = `hostname`.strip
+        servertype = host.split('.')[0].gsub(/[0-9]|srv/,"")
+        return servertype
       end
     end
   end
