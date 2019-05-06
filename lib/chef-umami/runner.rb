@@ -121,7 +121,8 @@ module Umami
       recipe_resources = {}
       if config[:recipes].empty?
         config[:recipes] = get_all_recipies_list
-        
+      end
+      
       chef_client.resource_collection.each do |resource|
         canonical_recipe = "#{resource.cookbook_name}::#{resource.recipe_name}"
         unless config[:recipes].empty?
