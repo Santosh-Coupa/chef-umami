@@ -36,7 +36,8 @@ module Umami
       end
 
       def test_file_path(cookbook = '', recipe = '')
-        "#{test_root}/#{cookbook}_#{recipe}_spec.rb"
+        servertype = get_server_details
+        "#{test_root}/#{servertype}/#{cookbook}_#{recipe}_spec.rb"
       end
 
       def preamble(cookbook = '', recipe = '')
@@ -97,6 +98,11 @@ module Umami
           end
         end
       end
+
+      def get_server_details()
+        host = `hostname`.strip
+        servertype = host.split('.')[0].gsub(/[0-9]|srv/,"")
+        return servertype
     end
   end
 end
