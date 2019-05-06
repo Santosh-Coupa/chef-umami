@@ -12,14 +12,14 @@ Gem::Specification.new do |gem|
   gem.homepage      = 'https://github.com/bloomberg/chef-umami'
   gem.summary       = gem.description
 
-  gem.required_ruby_version = '>= 2.3'
+  #gem.required_ruby_version = '>= 2.3'
 
   gem.files         = Dir['{bin,lib,spec,support,test}/**/*', 'README*', 'LICENSE*', 'CONTRIBUTING*', 'CHANGELOG*']
   gem.test_files    = gem.files.grep(%r{^(test|spec)/})
   gem.require_paths = ['lib']
   gem.executables << 'umami'
 
-  gem.add_dependency 'chef', '~> 14.10'
-  gem.add_dependency 'chef-dk', '~> 3.8'
+  gem.add_dependency 'chef', '~> 11.0'
+  #gem.add_dependency 'chef-dk', '~> 3.8'
   gem.add_dependency 'rubocop', '~> 0.47'
 end

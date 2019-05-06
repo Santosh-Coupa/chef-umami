@@ -18,8 +18,8 @@ require 'chef-umami/client'
 require 'chef-umami/logger'
 require 'chef-umami/options'
 require 'chef-umami/server'
-require 'chef-umami/policyfile/exporter'
-require 'chef-umami/policyfile/uploader'
+#require 'chef-umami/policyfile/exporter'
+#require 'chef-umami/policyfile/uploader'
 require 'chef-umami/test/unit'
 require 'chef-umami/test/integration'
 
@@ -32,7 +32,7 @@ module Umami
     def initialize
       @config = config
       @cookbook_dir = Dir.pwd
-      @exporter = exporter
+      #@exporter = exporter
       @chef_zero_server = chef_zero_server
       # If we load the uploader or client now, they won't see the updated
       # Chef config!
@@ -65,9 +65,9 @@ module Umami
       end
     end
 
-    def exporter
-      @exporter ||= Umami::Policyfile::Exporter.new(policyfile_lock_file, cookbook_dir, policyfile)
-    end
+    #def exporter
+    #  @exporter ||= Umami::Policyfile::Exporter.new(policyfile_lock_file, cookbook_dir, policyfile)
+    #end
 
     def uploader
       @uploader ||= Umami::Policyfile::Uploader.new(policyfile_lock_file)
@@ -82,28 +82,28 @@ module Umami
     end
 
     def run
-      validate_lock_file!
+      #validate_lock_file!
       puts "\nExporting the policy, related cookbooks, and a valid client configuration..."
-      FileUtils.cp(config[:json_config], '/tmp/config.json')
-      exporter.export
-      file_names = [exporter.chef_config_file]
-      file_names.each do |file_name|
-         text = File.read(file_name)
-         new_contents = text.gsub(/policy_group 'local'/, "policy_group 'dev'")
-        # To merely print the contents of the file, use:
-        puts new_contents
+      #FileUtils.cp(config[:json_config], '/tmp/config.json')
+      #exporter.export
+      #file_names = [exporter.chef_config_file]
+      #file_names.each do |file_name|
+      #   text = File.read(file_name)
+      #   new_contents = text.gsub(/policy_group 'local'/, "policy_group 'dev'")
+      #  # To merely print the contents of the file, use:
+      #  puts new_contents
 
-        # To write changes to the file, use:
-        File.open(file_name, "w") {|file| file.puts new_contents }
-      end
-      Chef::Config.from_file(exporter.chef_config_file)
-      Chef::Config['policy_group'] ='dev'
+      #  # To write changes to the file, use:
+      #  File.open(file_name, "w") {|file| file.puts new_contents }
+      #end
+      Chef::Config.from_file('/etc/chef/client.rb')
+      #Chef::Config['policy_group'] ='dev'
       #chef_zero_server.start
       puts "\nUploading the policy and related cookbooks..."
-      uploader.upload
+      #uploader.upload
       puts "\nExecuting chef-client compile phase..."
       # Define Chef::Config['config_file'] lest Ohai complain.
-      Chef::Config['config_file'] = exporter.chef_config_file
+      Chef::Config['config_file'] = '/etc/chef/client.rb' 
       sleep 60
       chef_client.compile
       # Build a hash of all the recipes' resources, keyed by the canonical
@@ -126,8 +126,8 @@ module Umami
 
       # Remove the temporary directory using a naive guard to ensure we're
       # deleting what we expect.
-      re_export_path = Regexp.new('/tmp/umami')
-      FileUtils.rm_rf(exporter.export_root) if exporter.export_root.match(re_export_path)
+      #re_export_path = Regexp.new('/tmp/umami')
+      #FileUtils.rm_rf(exporter.export_root) if exporter.export_root.match(re_export_path)
 
       if config[:unit_tests]
         puts "\nGenerating a set of unit tests..."

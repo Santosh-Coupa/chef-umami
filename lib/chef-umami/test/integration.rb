@@ -50,7 +50,7 @@ module Umami
           return if resource.action.include?(:delete)
         end
         return if resource.action == :delete
-        "\n" + send("test_#{resource.declared_type}", resource)
+        "\n" + send("test_#{resource.resource_name}", resource)
       end
 
       # If the test framework's helper module doesn't provide support for a
@@ -66,7 +66,6 @@ module Umami
       end
 
       def generate(recipe_resources = {})
-        binding.pry
         test_files_written = []
         recipe_resources.each do |canonical_recipe, resources|
           (cookbook, recipe) = canonical_recipe.split('::')
@@ -75,6 +74,10 @@ module Umami
             if !resource.only_if.empty?
                if resource.only_if[0].continue?
                   content << write_test(resource) 
+               end
+            elsif !resource.not_if.empty?
+               if resource.not_if[0].continue?
+                  content << write_test(resource)
                end
             else
                content << write_test(resource)

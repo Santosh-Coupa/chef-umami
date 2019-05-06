@@ -11,7 +11,7 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-require 'pry'
+require 'json'
 module Umami
   module Helper
     module InSpec
@@ -25,7 +25,7 @@ module Umami
         else
           identity = resource.identity
         end
-        "describe #{resource.declared_type}('#{identity}') do"
+        "describe #{resource.resource_name}('#{identity}') do"
       end
 
       # All test methods should follow the naming convention 'test_<resource type>'
@@ -63,13 +63,13 @@ module Umami
         test << 'it { should be_installed }'
         unless resource.version.nil?
             unless !resource.version.is_a?(String) && !resource.version.empty?
-              ver = resource.version.split('.')
-              if ver[-1] == "0"
-                res_ver = ver[0..-2].join('.')
-              else
-                res_ver = resource.version
-              end
-              test << "its('version') { should include '#{res_ver}' }"
+              #ver = resource.version.split('.')
+              #if ver[-1] == "0"
+              #  res_ver = ver[0..-2].join('.')
+              #else
+              #  res_ver = resource.version
+              #end
+              test << "its('versions') { should include '#{resource.version}' }"
             end
           end
         test << 'end'
@@ -81,7 +81,8 @@ module Umami
       end
 
       def test_cron(resource)
-        test = ["describe crontab('#{resource.user}').commands('#{resource.command}') do"]
+        command = resource.command.gsub(/\/opt\/ruby-2.3.1\/bin\/ruby/, "/opt/chef/embedded/bin/ruby")
+        test = ["describe crontab('#{resource.user}').commands('#{command}') do"]
         test << "its('minutes') { should cmp '#{resource.minute}' }"
         test << "its('hours') { should cmp '#{resource.hour}' }"
         test << "its('days') { should cmp '#{resource.day}' }"
@@ -94,7 +95,7 @@ module Umami
       def test_file(resource)
         test = ["describe file('#{resource.path}') do"]
        
-        if resource.declared_type =~ /directory/
+        if resource.resource_name =~ /directory/
           test << 'it { should be_directory }'
         else
           test << 'it { should be_file }'
@@ -134,7 +135,7 @@ module Umami
       
       def test_group(resource)
         test = [desciption(resource)] 
-        if !resource.action.include? :remove
+        if !check_in_array(resource.action,:remove)
           test << 'it { should exist }'
         else
           test << "it { should_not exist }"
@@ -144,11 +145,23 @@ module Umami
       end
 
       def test_package(resource)
-        test = [desciption(resource)]
-        if !resource.action.include? :remove
+        data  = JSON.parse(File.read('packages.json'))
+        if data.keys.include? resource.package_name
+          package_name = data[resource.package_name]['name']
+          test = ["describe package('#{package_name}') do"]
+        else
+          test = [desciption(resource)]
+        end
+
+        if !check_in_array(resource.action,:remove)
           if !resource.version.nil? && !resource.version.empty?
+            if data.keys.include? resource.package_name
+              version = data[resource.package_name]['version']
+            else
+              version = resource.version
+            end             
             test << "it { should be_installed }"
-            test << "its('version') { should include '#{resource.version}' }"
+            test << "its('version') { should include '#{version}' }"
           else
             test << 'it { should be_installed }'
           end
@@ -161,7 +174,7 @@ module Umami
 
       def test_user(resource)
         test = [desciption(resource)]
-        if !resource.action.include? :remove
+        if !check_in_array(resource.action,:remove)
           test << 'it { should exist }'
           # Guard for GIDs rather than strings. Chef aliases the #group method
           # to the #gid method.
@@ -223,10 +236,10 @@ module Umami
       def test_service(resource)
         test = ["describe service('#{resource.name}') do"]
         test << "it { should be_installed }"
-        if resource.action.include?:start 
+        if check_in_array(resource.action,:start,check_include=true)
           test << "it { should be_running }"
         end
-        if resource.action.include?:enable
+        if check_in_array(resource.action,:enable,check_include=true)
           test << "it {should be_enabled}"
         end
         test << 'end'
@@ -234,7 +247,6 @@ module Umami
       end
       
       #def test_users_manage(resource)
-      #  binding.pry
       #  puts "#test bash missing"
       #end
   
@@ -243,12 +255,37 @@ module Umami
       #  puts "#test execute missing"
       #end 
       def test_link(resource)
+        if !resource.to.include? "/mnt/ephemeral"
+          target = resource.to.gsub(/\/home/, "/mnt/ephemeral/home")
+          target = target.gsub(/\/etc\/coupa/, "/mnt/ephemeral/etc/coupa")
+          target = target.gsub(/\/usr\/local\/coupa/, "/mnt/ephemeral/usr/local/coupa")
+          target = target.gsub(/ca-bundle.crt/, "ca-bundle-complete.crt")
+          target = target.gsub(/\/opt\/rbenv/, "/opt/rbenv-0.4.0")
+        else
+          target = resource.to.gsub(/ca-bundle.crt/, "ca-bundle-complete.crt")
+        end
+     
+        #/etc/coupa -> /mnt/ephemeral/etc/coupa
         test = ["describe file('#{resource.name}') do"]
         test << "it { should be_symlink }"
-        test << "it { should be_linked_to '#{resource.to}' }"
+        test << "it { should be_linked_to '#{target}' }"
         test << 'end'
         test.join("\n")
-      end        
+      end
+
+      def check_in_array(action,inc_string, check_include=false)
+        if action.is_a? Array
+          if check_include
+            return action.include? inc_string
+          else
+            return action[-1] == inc_string
+          end
+        elsif action.is_a? Symbol
+          return action == inc_string
+        else
+          return false
+        end
+      end   
     end
   end
 end

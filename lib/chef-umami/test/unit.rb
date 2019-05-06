@@ -61,7 +61,7 @@ module Umami
 
       def write_test(resource = nil)
         state_attrs = [] # Attribute hash to be used with #with()
-        resource.state_for_resource_reporter.each do |attr, value|
+        resource.state.each do |attr, value|
           next if value.nil? || (value.respond_to?(:empty) && value.empty?)
           if value.is_a? String
             value = value.gsub("'", "\\\\'") # Escape any single quotes in the value.
@@ -81,34 +81,44 @@ module Umami
           action = resource.action
         end
         resource_name = resource.name.gsub("'", "\\\\'") # Escape any single quotes in the resource name.
-        test_output = ["\nit '#{action}s #{resource.declared_type} \"#{resource_name}\"' do"]
+        test_output = ["\nit '#{action}s #{resource.resource_name} \"#{resource_name}\"' do"]
         if state_attrs.empty?
-          test_output << "expect(chef_run).to #{action}_#{resource.declared_type}('#{resource_name}')"
+          test_output << "expect(chef_run).to #{action}_#{resource.resource_name}('#{resource_name}')"
         else
-          test_output << "expect(chef_run).to #{action}_#{resource.declared_type}('#{resource_name}').with(#{state_attrs.join(', ')})"
+          test_output << "expect(chef_run).to #{action}_#{resource.resource_name}('#{resource_name}').with(#{state_attrs.join(', ')})"
         end
         test_output << "end\n"
         test_output.join("\n")
       end
 
+
+
       def generate(recipe_resources = {})
         test_files_written = []
         recipe_resources.each do |canonical_recipe, resources|
-          if !resources.only_if.empty? and resources.only_if[0].continue?
-            (cookbook, recipe) = canonical_recipe.split('::')
-            # Only write unit tests for the cookbook we're in.
-            next unless cookbook == tested_cookbook
-            content = [preamble(cookbook, recipe)]
-            resources.each do |resource|
-              content << write_test(resource)
+          (cookbook, recipe) = canonical_recipe.split('::')
+          # Only write unit tests for the cookbook we're in.
+          next unless cookbook == tested_cookbook
+          content = [preamble(cookbook, recipe)]
+          resources.each do |resource|
+            if !resource.only_if.empty?
+               if resource.only_if[0].continue?
+                 content << write_test(resource)
+               end
+            elsif !resource.not_if.empty?
+               if resource.not_if[0].continue?
+                  content << write_test(resource)
+               end
+            else
+               content << write_test(resource)
             end
-            content << 'end'
-            test_file_name = test_file(recipe)
-            test_file_content = content.join("\n") + "\n"
-            write_file(test_file_name, test_file_content)
-            test_files_written << test_file_name
           end
-        end  
+          content << 'end'
+          test_file_name = test_file(recipe)
+          test_file_content = content.join("\n") + "\n"
+          write_file(test_file_name, test_file_content)
+          test_files_written << test_file_name
+        end
         enforce_styling(test_root)
         write_spec_helper
         test_files_written << spec_helper_path
