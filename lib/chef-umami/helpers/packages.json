@@ -1,0 +1,13 @@
+{
+  "mysql-libs":{ "name" : "Percona-Server-shared-51"},
+  "python2-boto":{"name": "python-boto","version":"2.34.0"}
+  
+
+
+
+
+
+
+
+
+}
