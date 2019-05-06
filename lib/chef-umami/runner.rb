@@ -81,6 +81,16 @@ module Umami
       @chef_client ||= Umami::Client.new
     end
 
+    def get_all_recipies_list
+      cookbook = Dir.pwd.split('/')[-1]
+      recpies_list = []
+      Dir["recipes/*.rb"].each do |r|
+        recip = cookbook + "::" + r.split('/')[1].split('.')[0]
+        recpies_list.append recpies_list
+      end
+      return recpies_list
+    end  
+
     def run
       #validate_lock_file!
       puts "\nExporting the policy, related cookbooks, and a valid client configuration..."
@@ -109,6 +119,9 @@ module Umami
       # Build a hash of all the recipes' resources, keyed by the canonical
       # name of the recipe (i.e. ohai::default).
       recipe_resources = {}
+      if config[:recipes].empty?
+        config[:recipes] = get_all_recipies_list
+        
       chef_client.resource_collection.each do |resource|
         canonical_recipe = "#{resource.cookbook_name}::#{resource.recipe_name}"
         unless config[:recipes].empty?
