@@ -63,13 +63,11 @@ module Umami
         test << 'it { should be_installed }'
         unless resource.version.nil?
             unless !resource.version.is_a?(String) && !resource.version.empty?
-              #ver = resource.version.split('.')
-              #if ver[-1] == "0"
-              #  res_ver = ver[0..-2].join('.')
-              #else
-              #  res_ver = resource.version
-              #end
-              test << "its('versions') { should include '#{resource.version}' }"
+              if check_in_array(resource.action,:remove)
+                test << "its('versions') { should_not include '#{resource.version}' }"
+              else 
+                test << "its('versions') { should include '#{resource.version}' }"
+              end
             end
           end
         test << 'end'
@@ -144,7 +142,7 @@ module Umami
       end
 
       def test_package(resource)
-        data  = JSON.parse(File.read('packages.json'))
+        data  = JSON.parse(File.read(get_package_json_file))
         if data.keys.include? resource.package_name
           package_name = data[resource.package_name]['name']
           test = ["describe package('#{package_name}') do"]
@@ -284,7 +282,11 @@ module Umami
         else
           return false
         end
-      end   
+      end
+      def get_package_json_file
+        require 'chef-umami'
+        Gem.loaded_specs['chef-umami'].full_gem_path + '/lib/chef-umami/helpers/packages.json'
+      end  
     end
   end
 end
