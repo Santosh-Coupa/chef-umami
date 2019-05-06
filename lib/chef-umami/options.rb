@@ -35,14 +35,19 @@ module Umami
                 " (DEFAULT: #{options[:integration_tests]})") do |integration_tests|
           options[:integration_tests] = integration_tests
         end
-        opts.on('-p', '--policyfile POLICYFILE_PATH', 'Specify the path to a policy' \
-                " (DEFAULT: #{options[:policyfile]})") do |policyfile|
-          options[:policyfile] = policyfile
-        end
+        #opts.on('-p', '--policyfile POLICYFILE_PATH', 'Specify the path to a policy' \
+        #        " (DEFAULT: #{options[:policyfile]})") do |policyfile|
+        #  options[:policyfile] = policyfile
+        #end
         opts.on('-r', '--recipes RECIPE1,RECIPE2', Array,
                 "Specify one or more recipes for which we'll write tests" \
                 ' (DEFAULT: All recipes)') do |recipes|
           options[:recipes] = recipes
+          if options[:recipes][0] == 'all'
+             options[:recipes] = get_all_recipies_list
+             puts " Generating Unit and Integration tests on following recipies"
+             puts "#{options[:recipes]}"
+          end
         end
         opts.on('-t', '--test-root TEST_ROOT_PATH', "Specify the path into which we'll write tests" \
                 " (DEFAULT: #{options[:test_root]})") do |test_root|
@@ -74,5 +79,15 @@ module Umami
       end
       options
     end
+
+    def get_all_recipies_list
+      cookbook = Dir.pwd.split('/')[-1]
+      recpies_list = []
+      Dir["recipes/*.rb"].each do |r|
+        recip = cookbook + "::" + r.split('/')[1].split('.')[0]
+        recpies_list.append recpies_list
+      end
+      return recpies_list
+    end 
   end
 end
