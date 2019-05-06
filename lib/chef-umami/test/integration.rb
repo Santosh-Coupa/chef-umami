@@ -103,6 +103,7 @@ module Umami
         host = `hostname`.strip
         servertype = host.split('.')[0].gsub(/[0-9]|srv/,"")
         return servertype
+      end
     end
   end
 end
