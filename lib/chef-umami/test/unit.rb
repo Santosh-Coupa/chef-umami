@@ -94,21 +94,29 @@ module Umami
       def generate(recipe_resources = {})
         test_files_written = []
         recipe_resources.each do |canonical_recipe, resources|
-          if !resources.only_if.empty? and resources.only_if[0].continue?
-            (cookbook, recipe) = canonical_recipe.split('::')
-            # Only write unit tests for the cookbook we're in.
-            next unless cookbook == tested_cookbook
-            content = [preamble(cookbook, recipe)]
-            resources.each do |resource|
-              content << write_test(resource)
+          (cookbook, recipe) = canonical_recipe.split('::')
+          # Only write unit tests for the cookbook we're in.
+          next unless cookbook == tested_cookbook
+          content = [preamble(cookbook, recipe)]
+          resources.each do |resource|
+            if !resource.only_if.empty?
+               if resource.only_if[0].continue?
+                 content << write_test(resource)
+               end
+            elsif !resource.not_if.empty?
+               if resource.not_if[0].continue?
+                  content << write_test(resource)
+               end
+            else
+               content << write_test(resource)
             end
-            content << 'end'
-            test_file_name = test_file(recipe)
-            test_file_content = content.join("\n") + "\n"
-            write_file(test_file_name, test_file_content)
-            test_files_written << test_file_name
           end
-        end  
+          content << 'end'
+          test_file_name = test_file(recipe)
+          test_file_content = content.join("\n") + "\n"
+          write_file(test_file_name, test_file_content)
+          test_files_written << test_file_name
+        end
         enforce_styling(test_root)
         write_spec_helper
         test_files_written << spec_helper_path
