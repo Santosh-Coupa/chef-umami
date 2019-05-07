@@ -252,6 +252,7 @@ module Umami
           end
           test << 'end'
           test.join("\n")
+        end
       end
       
       #def test_users_manage(resource)
