@@ -38,7 +38,7 @@ def get_all_recipies_list
     end
     return fail_flag
   end
-if get_all_recipies_list
+if !get_all_recipies_list
   cookbook_dir = Dir.pwd
   puts "#{cookbook_dir}/Build_unit_test"
 else
