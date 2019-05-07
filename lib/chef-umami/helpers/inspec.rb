@@ -231,23 +231,27 @@ module Umami
       end
       
       def test_service(resource)
-        test = ["describe service('#{resource.name}') do"]
-        if check_in_array(resource.action,:stop)
-          test << "it { should_not be_running }"
+        if !resource.ignore_failure
+          test = ["describe service('#{resource.name}') do"]
+          if check_in_array(resource.action,:stop)
+            test << "it { should_not be_running }"
+          end
 
-        if check_in_array(resource.action,:disable)
-          test << "it {should_not be_enabled}" 
+          if check_in_array(resource.action,:disable)
+            test << "it {should_not be_enabled}" 
+          end
 
-        if check_in_array(resource.action,:start,check_include=true)
-          #test << "it { should be_installed }"
-          test << "it { should be_running }"
-        end
-        if check_in_array(resource.action,:enable,check_include=true)
-          #test << "it { should be_installed }"
-          test << "it {should be_enabled}"
-        end
-        test << 'end'
-        test.join("\n")
+          if check_in_array(resource.action,:start,check_include=true)
+            #test << "it { should be_installed }"
+            test << "it { should be_running }"
+          end
+
+          if check_in_array(resource.action,:enable,check_include=true)
+            #test << "it { should be_installed }"
+            test << "it {should be_enabled}"
+          end
+          test << 'end'
+          test.join("\n")
       end
       
       #def test_users_manage(resource)
