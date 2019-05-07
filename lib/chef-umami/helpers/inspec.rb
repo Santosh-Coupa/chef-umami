@@ -251,7 +251,9 @@ module Umami
             test << "it {should be_enabled}"
           end
           test << 'end'
-          test.join("\n")
+        else
+          test = ["#Skipping resource #{resource}=#{resource.ignore_failure} condition"]
+        test.join("\n")
         end
       end
       
