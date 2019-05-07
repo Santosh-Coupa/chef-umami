@@ -232,11 +232,18 @@ module Umami
       
       def test_service(resource)
         test = ["describe service('#{resource.name}') do"]
-        test << "it { should be_installed }"
+        if check_in_array(resource.action,:stop)
+          test << "it { should_not be_running }"
+
+        if check_in_array(resource.action,:disable)
+          test << "it {should_not be_enabled}" 
+
         if check_in_array(resource.action,:start,check_include=true)
+          #test << "it { should be_installed }"
           test << "it { should be_running }"
         end
         if check_in_array(resource.action,:enable,check_include=true)
+          #test << "it { should be_installed }"
           test << "it {should be_enabled}"
         end
         test << 'end'
