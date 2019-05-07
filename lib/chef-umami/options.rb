@@ -85,7 +85,7 @@ module Umami
       recpies_list = []
       Dir["recipes/*.rb"].each do |r|
         recip = cookbook + "::" + r.split('/')[1].split('.')[0]
-        recpies_list.append recpies_list
+        recpies_list.push(recip)
       end
       return recpies_list
     end 

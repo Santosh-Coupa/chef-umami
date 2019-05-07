@@ -231,8 +231,8 @@ module Umami
       end
       
       def test_service(resource)
+        test = ["describe service('#{resource.name}') do"]
         if !resource.ignore_failure
-          test = ["describe service('#{resource.name}') do"]
           if check_in_array(resource.action,:stop)
             test << "it { should_not be_running }"
           end
@@ -250,11 +250,9 @@ module Umami
             #test << "it { should be_installed }"
             test << "it {should be_enabled}"
           end
-          test << 'end'
-        else
-          test = ["#Skipping resource #{resource}=#{resource.ignore_failure} condition"]
-        test.join("\n")
         end
+        test << 'end'
+        test.join("\n")
       end
       
       #def test_users_manage(resource)
