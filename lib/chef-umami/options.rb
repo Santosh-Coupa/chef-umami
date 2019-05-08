@@ -83,7 +83,7 @@ module Umami
     def get_all_recipies_list
       cookbook = Dir.pwd.split('/')[-1]
       recpies_list = []
-      Dir["recipes/*.rb"].each do |r|
+      Dir["/var/chef/cache/cookbooks/#{cookbook}/{recipes/*.rb"].each do |r|
         recip = cookbook + "::" + r.split('/')[1].split('.')[0]
         recpies_list.push(recip)
       end
