@@ -1,4 +1,4 @@
-#!/opt/ruby-2.3.1/bin/ruby -w
+#!/opt/chef/embedded/bin/ruby -w
 
 def get_ruby_path
   chefv = `chef-client -v`
