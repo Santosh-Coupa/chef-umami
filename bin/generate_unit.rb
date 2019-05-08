@@ -20,7 +20,7 @@ def get_all_recipies_list
           if system("cd #{directory} && sudo rm -rf #{cookbook}")
             status = system("cd #{directory} && git clone git@github.com:coupa-ops/#{cookbook}.git")
             if status
-               if system("cd #{directory}/#{cookbook} && /opt/chef/embedded/bin/umami -r all")
+               if system("cd #{directory}/#{cookbook} && sudo /opt/chef/embedded/bin/umami -r all")
                   puts "Unit and integration test cases generated for cookbook #{cookbook}"
                else
                   puts "Unit and integration test cases generation failed for cookbook #{cookbook}"
