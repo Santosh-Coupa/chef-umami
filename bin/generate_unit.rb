@@ -3,7 +3,7 @@
 def get_ruby_path
   chefv = `chef-client -v`
   if chefv.include?'Chef: 11.18.6'
-     return '/opt/ruby-2.3.1/bin/umami'
+     return '/opt/ruby-2.3.5/bin/umami'
   else
      return '/opt/chef/embedded/bin/umami'
   end
@@ -11,7 +11,7 @@ end
 
 def get_all_recipies_list
   fail_flag = false
-  directory = "Build_unit_test"
+  directory = "CQE_integration_test"
   Dir.mkdir(directory) unless File.exist?(directory)
   Dir.glob("/var/chef/cache/cookbooks/coupa-*").each do |r|
       if Dir.exist? r
@@ -20,7 +20,7 @@ def get_all_recipies_list
           if system("cd #{directory} && sudo rm -rf #{cookbook}")
             status = system("cd #{directory} && git clone git@github.com:coupa-ops/#{cookbook}.git")
             if status
-               if system("cd #{directory}/#{cookbook} && sudo #{get_ruby_path} -r all")
+               if system("cd #{directory}/#{cookbook} && /opt/chef/embedded/bin/umami -r all")
                   puts "Unit and integration test cases generated for cookbook #{cookbook}"
                else
                   puts "Unit and integration test cases generation failed for cookbook #{cookbook}"
