@@ -1,4 +1,4 @@
-#!/opt/ruby-2.3.1/bin/ruby -w
+#!/opt/ruby-2.3.5/bin/ruby -w
 
 def get_ruby_path
   chefv = `chef-client -v`
@@ -18,7 +18,7 @@ def get_all_recipies_list
             cookbook = r.split('/')[-1]
             puts "Genrating Unit and integration test cases for cookbook #{cookbook}"
             if system("cd #{directory} && sudo rm -rf #{cookbook}")
-              status = system("cd #{directory} && git clone git@github.com:coupa-ops/#{cookbook}.git")
+              status = system("cd #{directory} && mkdir #{cookbook}")
               if status
                  if system("cd #{directory}/#{cookbook} && /opt/ruby-2.3.5/bin/umami -r all")
                     puts "Unit and integration test cases generated for cookbook #{cookbook}"
