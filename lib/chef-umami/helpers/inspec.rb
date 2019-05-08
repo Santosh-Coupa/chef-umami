@@ -48,7 +48,7 @@ module Umami
       def test_gem_package(resource, gem_binary = nil)
         package_name = resource.package_name
         if !resource.gem_binary.nil? and !resource.gem_binary.empty?
-          gem_binary = resource.gem_binary.gsub(/\/opt\/ruby-2.3.1\/bin\/gem/,"/opt/chef/embedded/bin/gem")
+          gem_binary = resource.gem_binary.gsub(/\/opt\/ruby-2.3.5\/bin\/gem/,"/opt/chef/embedded/bin/gem")
           test = ["describe gem('#{package_name}', '#{gem_binary}') do"]
         elsif gem_binary
           if gem_binary.is_a? Symbol
@@ -79,7 +79,7 @@ module Umami
       end
 
       def test_cron(resource)
-        command = resource.command.gsub(/\/opt\/ruby-2.3.1\/bin\/ruby/, "/opt/chef/embedded/bin/ruby")
+        command = resource.command.gsub(/\/opt\/ruby-2.3.5\/bin\/ruby/, "/opt/chef/embedded/bin/ruby")
         test = ["describe crontab('#{resource.user}').commands('#{command}') do"]
         test << "its('minutes') { should cmp '#{resource.minute}' }"
         test << "its('hours') { should cmp '#{resource.hour}' }"
@@ -297,8 +297,9 @@ module Umami
         end
       end
       def get_package_json_file
-        require 'chef-umami'
-        Gem.loaded_specs['chef-umami'].full_gem_path + '/lib/chef-umami/helpers/packages.json'
+        spec = Gem::Specification.find_by_name("chef-umami")
+        gem_root = spec.gem_dir
+        gem_root + '/lib/chef-umami/helpers/packages.json'
       end  
     end
   end
