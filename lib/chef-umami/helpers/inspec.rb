@@ -296,8 +296,9 @@ module Umami
         end
       end
       def get_package_json_file
-        require 'chef-umami'
-        Gem.loaded_specs['chef-umami'].full_gem_path + '/lib/chef-umami/helpers/packages.json'
+        spec = Gem::Specification.find_by_name("chef-umami")
+        gem_root = spec.gem_dir
+        gem_root + '/lib/chef-umami/helpers/packages.json'
       end  
     end
   end
