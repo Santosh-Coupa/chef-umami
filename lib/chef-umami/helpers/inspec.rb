@@ -95,7 +95,7 @@ module Umami
 
       def test_file(resource)
         test = ["describe file('#{resource.path}') do"]
-       
+        unless resource.action.nil? && check_in_array(resource.action,:remove)
         if resource.resource_name =~ /directory/
           test << 'it { should be_directory }'
         else
@@ -125,6 +125,8 @@ module Umami
             end
           end
         end
+        else
+          test << "it {should_not exist}"
         test << 'end'
         test.join("\n")
       end
