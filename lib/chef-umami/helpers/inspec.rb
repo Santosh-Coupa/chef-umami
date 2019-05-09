@@ -62,14 +62,14 @@ module Umami
         end
         test << 'it { should be_installed }'
         unless resource.version.nil?
-            unless !resource.version.is_a?(String) && !resource.version.empty?
-              if check_in_array(resource.action,:remove)
-                test << "its('versions') { should_not include '#{resource.version}' }"
-              else 
-                test << "its('versions') { should include '#{resource.version}' }"
-              end
+          unless !resource.version.is_a?(String) && !resource.version.empty?
+            if check_in_array(resource.action,:remove)
+              test << "its('versions') { should_not include '#{resource.version}' }"
+            else 
+              test << "its('versions') { should include '#{resource.version}' }"
             end
           end
+        end
         test << 'end'
         test.join("\n")
       end
@@ -81,7 +81,7 @@ module Umami
       def test_cron(resource)
         test = ["describe crontab('#{resource.user}') do"]
         test << "{ should include '#{resource.command}'}"
-        if resource.name !='Coupa Chef Client'
+        if resource.name != 'Coupa Chef Client'
           test << "its('minutes') { should cmp '#{resource.minute}' }"
           test << "its('hours') { should cmp '#{resource.hour}' }"
           test << "its('days') { should cmp '#{resource.day}' }"
@@ -125,7 +125,7 @@ module Umami
             end
           end
         else
-          test << "it {should_not exist}"
+          test << "it { should_not exist }"
         end
         test << 'end'
         test.join("\n")
@@ -213,12 +213,12 @@ module Umami
           if !resource.shell.nil? && !resource.shell.empty?
             test << "its('shell') { should eq '#{resource.shell}'}"
           end
-         else
+        else
            test << "it { should_not exist }"
         end			
         test << 'end'
         test.join("\n")
-       end
+      end
 
 
 
