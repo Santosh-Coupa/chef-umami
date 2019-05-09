@@ -59,17 +59,17 @@ module Umami
           test = ["describe gem('#{package_name}', '#{gem_binary}') do"]
         else
           test = ["describe gem('#{package_name}') do"]
-        end 
-          test << 'it { should be_installed }'
+        end
+        test << 'it { should be_installed }'
         unless resource.version.nil?
-            unless !resource.version.is_a?(String) && !resource.version.empty?
-              if check_in_array(resource.action,:remove)
-                test << "its('versions') { should_not include '#{resource.version}' }"
-              else 
-                test << "its('versions') { should include '#{resource.version}' }"
-              end
+          unless !resource.version.is_a?(String) && !resource.version.empty?
+            if check_in_array(resource.action,:remove)
+              test << "its('versions') { should_not include '#{resource.version}' }"
+            else 
+              test << "its('versions') { should include '#{resource.version}' }"
             end
           end
+        end
         test << 'end'
         test.join("\n")
       end
@@ -97,36 +97,36 @@ module Umami
         test = ["describe file('#{resource.path}') do"]
         unless resource.action.nil? && check_in_array(resource.action,:remove)
         if resource.resource_name =~ /directory/
-          test << 'it { should be_directory }'
-        else
-          test << 'it { should be_file }'
-        end
-        # Sometimes we see GIDs instead of group names.
-        unless resource.group.nil?
-          unless resource.group.is_a?(String) && resource.group.empty?
-            test << "it { should be_grouped_into '#{resource.group}' }"
-          end
-        end
-        # Guard for UIDs versus usernames as well.
-        unless resource.owner.nil?
-          unless resource.owner.is_a?(String) && resource.owner.empty?
-            test << "it { should be_owned_by '#{resource.owner}' }"
-          end
-        end
-        unless resource.mode.nil?
-          if resource.mode.is_a?(String)
-            unless resource.mode.is_a?(Integer) && !resource.mode.empty?
-                cv = resource.mode.to_i(8)
-                test << "it { should be_mode #{cv} }"
-            end
+            test << 'it { should be_directory }'
           else
-            unless resource.mode.is_a?(String) && !resource.mode.empty?
-                test << "it { should be_mode #{resource.mode} }"
+            test << 'it { should be_file }'
+          end
+          # Sometimes we see GIDs instead of group names.
+          unless resource.group.nil?
+            unless resource.group.is_a?(String) && resource.group.empty?
+              test << "it { should be_grouped_into '#{resource.group}' }"
             end
           end
-        end
+          # Guard for UIDs versus usernames as well.
+          unless resource.owner.nil?
+            unless resource.owner.is_a?(String) && resource.owner.empty?
+              test << "it { should be_owned_by '#{resource.owner}' }"
+            end
+          end
+          unless resource.mode.nil?
+            if resource.mode.is_a?(String)
+              unless resource.mode.is_a?(Integer) && !resource.mode.empty?
+                  cv = resource.mode.to_i(8)
+                  test << "it { should be_mode #{cv} }"
+              end
+            else
+              unless resource.mode.is_a?(String) && !resource.mode.empty?
+                  test << "it { should be_mode #{resource.mode} }"
+              end
+            end
+          end
         else
-          test << "it {should_not exist}"
+          test << "it { should_not exist }"
         end
         test << 'end'
         test.join("\n")
@@ -214,12 +214,12 @@ module Umami
           if !resource.shell.nil? && !resource.shell.empty?
             test << "its('shell') { should eq '#{resource.shell}'}"
           end
-         else
+        else
            test << "it { should_not exist }"
         end			
         test << 'end'
         test.join("\n")
-       end
+      end
 
 
 
@@ -238,7 +238,7 @@ module Umami
       end
       
       def test_service(resource)
-	test = ["describe service('#{resource.name}') do"]
+        test = ["describe service('#{resource.name}') do"]
         if !resource.ignore_failure
           if check_in_array(resource.action,:stop)
             test << "it { should_not be_running }"
@@ -310,4 +310,3 @@ module Umami
     end
   end
 end
-
