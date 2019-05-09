@@ -80,12 +80,15 @@ module Umami
 
       def test_cron(resource)
         command = resource.command.gsub(/\/opt\/ruby-2.3.5\/bin\/ruby/, "/opt/chef/embedded/bin/ruby")
-        test = ["describe crontab('#{resource.user}').commands('#{command}') do"]
-        test << "its('minutes') { should cmp '#{resource.minute}' }"
-        test << "its('hours') { should cmp '#{resource.hour}' }"
-        test << "its('days') { should cmp '#{resource.day}' }"
-        test << "its('weekdays') { should cmp '#{resource.weekday}' }"
-        test << "its('months') { should cmp '#{resource.month}' }"
+        test = ["describe crontab('#{resource.user}') do"]
+        test << "{ should include '#{resource.command}'}"
+        if resource.name !='Coupa Chef Client'
+          test << "its('minutes') { should cmp '#{resource.minute}' }"
+          test << "its('hours') { should cmp '#{resource.hour}' }"
+          test << "its('days') { should cmp '#{resource.day}' }"
+          test << "its('weekdays') { should cmp '#{resource.weekday}' }"
+          test << "its('months') { should cmp '#{resource.month}' }"
+        end
         test << 'end'
         test.join("\n")
       end      
