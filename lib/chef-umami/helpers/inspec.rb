@@ -127,6 +127,7 @@ module Umami
         end
         else
           test << "it {should_not exist}"
+        end
         test << 'end'
         test.join("\n")
       end
