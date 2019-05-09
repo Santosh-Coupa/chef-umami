@@ -79,7 +79,6 @@ module Umami
       end
 
       def test_cron(resource)
-        describe crontab('root') do
         test = ["describe crontab('#{resource.user}') do"]
         test << "{ should include '#{resource.command}'}"
         if resource.name !='Coupa Chef Client'
@@ -95,36 +94,38 @@ module Umami
 
       def test_file(resource)
         test = ["describe file('#{resource.path}') do"]
-       
-        if resource.declared_type =~ /directory/
-          test << 'it { should be_directory }'
-        else
-          test << 'it { should be_file }'
-        end
-        # Sometimes we see GIDs instead of group names.
-        unless resource.group.nil?
-          unless resource.group.is_a?(String) && resource.group.empty?
-            test << "it { should be_grouped_into '#{resource.group}' }"
-          end
-        end
-        # Guard for UIDs versus usernames as well.
-        unless resource.owner.nil?
-          unless resource.owner.is_a?(String) && resource.owner.empty?
-            test << "it { should be_owned_by '#{resource.owner}' }"
-          end
-        end
-        unless resource.mode.nil?
-          if resource.mode.is_a?(String)
-            unless resource.mode.is_a?(Integer) && !resource.mode.empty?
-                cv = resource.mode.to_i(8)
-                test << "it { should be_mode #{cv} }"
-            end
+        unless resource.action.nil? && check_in_array(resource.action,:remove)
+          if resource.declared_type =~ /directory/
+            test << 'it { should be_directory }'
           else
-            unless resource.mode.is_a?(String) && !resource.mode.empty?
-                test << "it { should be_mode #{resource.mode} }"
+            test << 'it { should be_file }'
+          end
+          # Sometimes we see GIDs instead of group names.
+          unless resource.group.nil?
+            unless resource.group.is_a?(String) && resource.group.empty?
+              test << "it { should be_grouped_into '#{resource.group}' }"
             end
           end
-        end
+          # Guard for UIDs versus usernames as well.
+          unless resource.owner.nil?
+            unless resource.owner.is_a?(String) && resource.owner.empty?
+              test << "it { should be_owned_by '#{resource.owner}' }"
+            end
+          end
+          unless resource.mode.nil?
+            if resource.mode.is_a?(String)
+              unless resource.mode.is_a?(Integer) && !resource.mode.empty?
+                  cv = resource.mode.to_i(8)
+                  test << "it { should be_mode #{cv} }"
+              end
+            else
+              unless resource.mode.is_a?(String) && !resource.mode.empty?
+                  test << "it { should be_mode #{resource.mode} }"
+              end
+            end
+          end
+        else
+          test << "it {should_not exist}"
         test << 'end'
         test.join("\n")
       end
