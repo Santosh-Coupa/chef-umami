@@ -97,7 +97,7 @@ module Umami
       def test_file(resource)
         test = ["describe file('#{resource.path}') do"]
         ignor_file = ['/opt/rightscale/etc/motd-complete','/opt/rightscale/etc/motd-failed']
-        unless ignor_file.include? ignor_file
+        unless ignor_file.include? resource.path
           if resource.resource_name =~ /directory/
             test << 'it { should be_directory }'
           else
