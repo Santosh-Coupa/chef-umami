@@ -80,8 +80,8 @@ module Umami
 
       def test_cron(resource)
         test = ["describe crontab('#{resource.user}') do"]
-        test << "{ should include '#{resource.command}'}"
-        if resource.name != 'Coupa Chef Client'
+        test << "its('commands') { should include '#{resource.command}'}"
+        if resource.name !='Coupa Chef Client'
           test << "its('minutes') { should cmp '#{resource.minute}' }"
           test << "its('hours') { should cmp '#{resource.hour}' }"
           test << "its('days') { should cmp '#{resource.day}' }"
