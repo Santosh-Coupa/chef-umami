@@ -37,7 +37,7 @@ def get_all_recipies_list
   end
 if !get_all_recipies_list
   cookbook_dir = Dir.pwd
-  puts "#{cookbook_dir}/Build_unit_test"
+  puts "#{cookbook_dir}/CQE_integration_test"
 else
   raise("Failed to execute script")
 end
