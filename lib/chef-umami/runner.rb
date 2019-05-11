@@ -78,39 +78,26 @@ module Umami
     end
 
     def chef_client
-      @chef_client ||= Umami::Client.new
-    end 
+      @chef_client ||= Umami::Client
+    end
 
     def run
-      #validate_lock_file!
-      puts "\nExporting the policy, related cookbooks, and a valid client configuration..."
-      #FileUtils.cp(config[:json_config], '/tmp/config.json')
-      #exporter.export
-      #file_names = [exporter.chef_config_file]
-      #file_names.each do |file_name|
-      #   text = File.read(file_name)
-      #   new_contents = text.gsub(/policy_group 'local'/, "policy_group 'dev'")
-      #  # To merely print the contents of the file, use:
-      #  puts new_contents
-
-      #  # To write changes to the file, use:
-      #  File.open(file_name, "w") {|file| file.puts new_contents }
-      #end
       Chef::Config.from_file('/etc/chef/client.rb')
-      #Chef::Config['policy_group'] ='dev'
-      #chef_zero_server.start
-      #puts "\nUploading the policy and related cookbooks..."
-      #uploader.upload
-      #puts "\nExecuting chef-client compile phase..."
       # Define Chef::Config['config_file'] lest Ohai complain.
-      Chef::Config['config_file'] = '/etc/chef/client.rb' 
+      Chef::Config['config_file'] = '/etc/chef/client.rb'
+      unless config[:name_recipes].nil?
+        Chef::Config[:override_runlist] = [Chef::RunList::RunListItem.new(config[:name_recipes])]
+      end
+      x = chef_client.new(:override_runlist => Chef::Config[:override_runlist])
+      Chef::Application::Client.new.reconfigure
+      puts "\nExecuting chef-client compile phase..." 
       sleep 60
-      chef_client.compile
+      x.compile
       # Build a hash of all the recipes' resources, keyed by the canonical
       # name of the recipe (i.e. ohai::default).
       recipe_resources = {}
 
-      chef_client.resource_collection.each do |resource|
+      x.resource_collection.each do |resource|
         canonical_recipe = "#{resource.cookbook_name}::#{resource.recipe_name}"
         unless config[:recipes].empty?
           # The user has explicitly requested that one or more recipes have

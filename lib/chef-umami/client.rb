@@ -17,11 +17,12 @@ require 'chef'
 module Umami
   class Client
     def initialize
+      @override_runlist = args.delete(:override_runlist)
       @client = client
     end
 
     def client
-      @client ||= Chef::Client.new
+      @client ||= Chef::Client.new(json_attribs=nil,:override_runlist =>@override_runlist)
     end
 
     # Perform the steps required prior to compiling resources, including
