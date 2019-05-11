@@ -58,6 +58,11 @@ module Umami
           options[:unit_tests] = unit_tests
         end
 
+        opts.on('-n', '--name-recipe NAMERECIPE', 'Specify name recpie'
+          " (DEFAULT: #{options[:name_recipes]})") do |name_recipe|
+          options[:name_recipes] = name_recipe
+          options[:recipes] = name_recipe
+        end
         #opts.on('-c', '--config-json JSON_CONFIG_PATH','Json config file' \
         #        " (DEFAULT: #{options[:json_config]})") do |json_config|
         #  options[:json_config] = json_config
