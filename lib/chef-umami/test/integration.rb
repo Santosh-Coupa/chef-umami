@@ -37,7 +37,7 @@ module Umami
 
       def test_file_path(cookbook = '', recipe = '')
         servertype = get_server_details
-        "#{test_root}/#{servertype}/#{cookbook}_#{recipe}_spec.rb"
+        "#{test_root}/#{servertype}/#{cookbook}/#{cookbook}_#{recipe}_spec.rb"
       end
 
       def preamble(cookbook = '', recipe = '')
