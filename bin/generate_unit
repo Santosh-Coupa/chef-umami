@@ -1,4 +1,5 @@
 #!/opt/ruby-2.3.5/bin/ruby -w
+require 'fileutils'
 
 def get_ruby_path
   chefv = `chef-client -v`
@@ -11,6 +12,7 @@ end
 
 def get_all_recipies_list
     fail_flag = false
+    FileUtils.rm_rf('CQE_integration_test')
     directory = "CQE_integration_test"
     Dir.mkdir(directory) unless File.exist?(directory)
     Dir.glob("/var/chef/cache/cookbooks/coupa-*").each do |r|
