@@ -27,7 +27,8 @@ module Umami
       attr_reader :tested_cookbook # This cookbook.
       def initialize(root_dir)
         super
-        @test_root = File.join(self.root_dir, 'umami', 'unit', 'recipes')
+        servertype = get_server_details
+        @test_root = File.join(self.root_dir, 'umami',servertype,'unit')
         @tested_cookbook = File.basename(Dir.pwd)
       end
 
@@ -37,7 +38,7 @@ module Umami
 
       def test_file(cookbook = '',recipe = '')
         servertype = get_server_details
-        "#{test_root}/#{servertype}/#{cookbook}/#{recipe}_spec.rb"
+        "#{test_root}/#{cookbook}/#{recipe}_spec.rb"
       end
 
       def spec_helper_path
