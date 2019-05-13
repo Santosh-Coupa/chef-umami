@@ -35,9 +35,9 @@ module Umami
         'chefspec'
       end
 
-      def test_file(recipe = '')
+      def test_file(cookbook = '',recipe = '')
         servertype = get_server_details
-        "#{test_root}/#{servertype}/#{recipe}_spec.rb"
+        "#{test_root}/#{servertype}/#{cookbook}/#{recipe}_spec.rb"
       end
 
       def spec_helper_path
@@ -115,7 +115,7 @@ module Umami
             end
           end
           content << 'end'
-          test_file_name = test_file(recipe)
+          test_file_name = test_file(cookbook,recipe)
           test_file_content = content.join("\n") + "\n"
           write_file(test_file_name, test_file_content)
           test_files_written << test_file_name
