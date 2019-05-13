@@ -27,7 +27,7 @@ module Umami
       def initialize(root_dir)
         super
         servertype = get_server_details
-        @test_root = File.join(self.root_dir, 'umami',servertype,'integration')
+        @test_root = File.join(self.root_dir, 'umami',servertype)
       end
 
       # InSpec doesn't need a require statement to use its tests.
@@ -38,7 +38,7 @@ module Umami
 
       def test_file_path(cookbook = '', recipe = '')
         #servertype = get_server_details
-        "#{test_root}/#{cookbook}/#{cookbook}_#{recipe}_spec.rb"
+        "#{test_root}/#{cookbook}/integration/#{cookbook}_#{recipe}_spec.rb"
       end
 
       def preamble(cookbook = '', recipe = '')

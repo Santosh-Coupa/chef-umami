@@ -28,7 +28,7 @@ module Umami
       def initialize(root_dir)
         super
         servertype = get_server_details
-        @test_root = File.join(self.root_dir, 'umami',servertype,'unit')
+        @test_root = File.join(self.root_dir, 'umami',servertype)
         @tested_cookbook = File.basename(Dir.pwd)
       end
 
@@ -38,7 +38,7 @@ module Umami
 
       def test_file(cookbook = '',recipe = '')
         servertype = get_server_details
-        "#{test_root}/#{cookbook}/#{recipe}_spec.rb"
+        "#{test_root}/#{cookbook}/unit/#{recipe}_spec.rb"
       end
 
       def spec_helper_path
