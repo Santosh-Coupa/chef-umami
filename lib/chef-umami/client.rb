@@ -16,7 +16,7 @@ require 'chef'
 
 module Umami
   class Client
-    def initialize
+    def initialize(args={})
       @override_runlist = args.delete(:override_runlist)
       @client = client
     end

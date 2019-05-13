@@ -256,6 +256,11 @@ module Umami
             test << "it { should be_running }"
           end
 
+          if check_in_array(resource.action,:restart,check_include=true)
+            #test << "it { should be_installed }"
+            test << "it { should be_running }"
+          end
+
           if check_in_array(resource.action,:enable,check_include=true)
             #test << "it { should be_installed }"
             test << "it {should be_enabled}"
