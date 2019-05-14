@@ -133,7 +133,10 @@ module Umami
 
       def get_server_details()
         host = `hostname`.strip
-        servertype = host.split('.')[0].gsub(/[0-9]|srv/,"")
+        if host.include? 'utl'
+          servertype = host.split('.')[0].gsub(/([a-z]+)([0-9]+)([a-z]+)([0-9]+)/,'\1\3\4')  
+        else
+          servertype = host.split('.')[0].gsub(/[0-9]|srv/,"")
         return servertype
       end
     end
