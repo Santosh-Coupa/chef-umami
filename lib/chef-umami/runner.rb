@@ -89,6 +89,7 @@ module Umami
         Chef::Config[:override_runlist] = [Chef::RunList::RunListItem.new(config[:name_recipes])]
       end
       x = chef_client.new(:override_runlist => Chef::Config[:override_runlist])
+      require 'chef/application/client'
       Chef::Application::Client.new.reconfigure
       puts "\nExecuting chef-client compile phase..." 
       sleep 60
