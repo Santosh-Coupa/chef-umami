@@ -79,6 +79,7 @@ module Umami
       end
 
       def test_cron(resource)
+        command = command.gsub(/'/,'\'')
         if resource.name =='Coupa Chef Client'  
           test = ["describe crontab('#{resource.user}') do"]
           test << "its('commands') { should include '#{command}'}"
