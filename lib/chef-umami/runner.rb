@@ -78,7 +78,7 @@ module Umami
     end
 
     def chef_client
-      @chef_client ||= Umami::Client.new
+      @chef_client ||= Umami::Client
     end
 
     def run
