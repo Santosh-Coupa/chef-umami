@@ -11,18 +11,18 @@ def get_ruby_path
 end
 
 def get_all_recipies_list
-    fail_flag = false
-    FileUtils.rm_rf('CQE_integration_test')
-    directory = "CQE_integration_test"
-    Dir.mkdir(directory) unless File.exist?(directory)
-    if system("sudo /opt/ruby-2.3.5/bin/umami -t CQE_integration_test  -a true")
-       puts "Unit and integration test cases generated for cookbook"
-    else
-       puts "Unit and integration test cases generation failed for cookbook"
-      fail_flag = true
-    end
-    return fail_flag
+  fail_flag = false
+  FileUtils.rm_rf('CQE_integration_test')
+  directory = "CQE_integration_test"
+  Dir.mkdir(directory) unless File.exist?(directory)
+  if system("sudo /opt/ruby-2.3.5/bin/umami -t CQE_integration_test  -a true")
+     puts "Unit and integration test cases generated for cookbook"
+  else
+     puts "Unit and integration test cases generation failed for cookbook"
+    fail_flag = true
   end
+  return fail_flag
+end
 
 if !get_all_recipies_list
   cookbook_dir = Dir.pwd
