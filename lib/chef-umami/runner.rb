@@ -78,7 +78,7 @@ module Umami
     end
 
     def chef_client
-      @chef_client ||= Umami::Client
+      @chef_client ||= Umami::Client.new
     end
 
     def run
@@ -91,26 +91,47 @@ module Umami
       x = chef_client.new(:override_runlist => Chef::Config[:override_runlist])
       require 'chef/application/client'
       Chef::Application::Client.new.reconfigure
-      puts "\nExecuting chef-client compile phase..." 
+      puts "\nExecuting chef-client compile phase..."
       sleep 60
       x.compile
       # Build a hash of all the recipes' resources, keyed by the canonical
       # name of the recipe (i.e. ohai::default).
       recipe_resources = {}
-
-      x.resource_collection.each do |resource|
-        canonical_recipe = "#{resource.cookbook_name}::#{resource.recipe_name}"
-        unless config[:recipes].empty?
-          # The user has explicitly requested that one or more recipes have
-          # tests written, to the exclusion of others.
-          # ONLY include the recipe if it matches the list.
-          next unless config[:recipes].include?(canonical_recipe)
-        end
-        if recipe_resources.key?(canonical_recipe)
-          recipe_resources[canonical_recipe] << resource
-        else
-          recipe_resources[canonical_recipe] = [resource]
-        end
+      if !config[:recipes].empty?
+         x.resource_collection.each do |resource|
+            canonical_recipe = "#{resource.cookbook_name}::#{resource.recipe_name}"
+            unless config[:recipes].empty?
+               # The user has explicitly requested that one or more recipes have
+               # tests written, to the exclusion of others.
+               # ONLY include the recipe if it matches the list.
+               next unless config[:recipes].include?(canonical_recipe)
+            end
+            if recipe_resources.key?(canonical_recipe)
+               recipe_resources[canonical_recipe] << resource
+            else
+               recipe_resources[canonical_recipe] = [resource]
+            end
+         end
+      end
+      unless config[:all_supported_cookbooks].empty?
+         Dir.glob(config[:cookbooks_dir]).each do |r|
+            @cookbook_dir = r
+            config[:recipes] = get_recipies_list(r)
+            x.resource_collection.each do |resource|
+               canonical_recipe = "#{resource.cookbook_name}::#{resource.recipe_name}"
+               unless config[:recipes].empty?
+                  # The user has explicitly requested that one or more recipes have
+                  # tests written, to the exclusion of others.
+                  # ONLY include the recipe if it matches the list.
+                  next unless config[:recipes].include?(canonical_recipe)
+               end
+               if recipe_resources.key?(canonical_recipe)
+                  recipe_resources[canonical_recipe] << resource
+               else
+                  recipe_resources[canonical_recipe] = [resource]
+               end
+            end
+         end
       end
 
       # Remove the temporary directory using a naive guard to ensure we're
@@ -129,6 +150,17 @@ module Umami
         integration_tester = Umami::Test::Integration.new(config[:test_root])
         integration_tester.generate(recipe_resources)
       end
+    end
+
+    def get_recipies_list(d)
+      cookbook = d.split('/')[-1]
+      recpies_list = []
+      Dir[d +"/recipes/*.rb"].each do |r|
+        recip = cookbook + "::" + r.split('/')[-1].split('.')[0]
+        recip = recip.gsub('/n','')
+        recpies_list.push(recip)
+      end
+      return recpies_list
     end
   end
 end

@@ -100,7 +100,7 @@ module Umami
         recipe_resources.each do |canonical_recipe, resources|
           (cookbook, recipe) = canonical_recipe.split('::')
           # Only write unit tests for the cookbook we're in.
-          next unless cookbook == tested_cookbook
+          #next unless cookbook == tested_cookbook
           content = [preamble(cookbook, recipe)]
           resources.each do |resource|
             if !resource.only_if.empty?
