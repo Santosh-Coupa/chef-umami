@@ -80,7 +80,9 @@ module Umami
 
       def test_cron(resource)
         command = resource.command.gsub(/\/opt\/ruby-2.3.5\/bin\/ruby/, "/opt/chef/embedded/bin/ruby")
-        if resource.name =='Coupa Chef Client'  
+        if resource.name =='Coupa Chef Client'
+          deployment = get_deployment
+          command = command.gsub(/--environment (.*) 2>/, '--environment #{deployment} 2>')  
           test = ["describe crontab('#{resource.user}') do"]
           test << "its('commands') { should include \"#{command}\"}"
         else
@@ -314,6 +316,11 @@ module Umami
         spec = Gem::Specification.find_by_name("chef-umami")
         gem_root = spec.gem_dir
         gem_root + '/lib/chef-umami/helpers/packages.json'
+      end
+      def get_deployment
+        host = `hostname`.strip
+        servertype = host.split('.')[0].gsub(/([a-z]+)([0-9]+)([a-z]+)([0-9]+)/,'\1\2')  
+        return servertype 
       end  
     end
   end
