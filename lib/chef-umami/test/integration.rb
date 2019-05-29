@@ -42,7 +42,7 @@ module Umami
       end
 
       def preamble(cookbook = '', recipe = '')
-        "# #{test_file_path(cookbook, recipe)} - Originally written by Umami!"
+        "# #{test_file_path(cookbook, recipe)} - Originally written by Umami! \n def coupahost \n\s\s\shost = `hostname`.strip\n\s\s\s host.split('.')[0].gsub(/([a-z]+)([0-9]+).*/,'\\1\\2')\nend\ncoupah=coupahost"
       end
 
       # Call on the apprpriate method from the Umami::Helper::InSpec
@@ -113,8 +113,8 @@ module Umami
 
       def check_valid_resource(resource)
         host = `hostname`.strip
-          domain = host.split('.')[-2].host.split('.')[-1]
-        res = ['cookbook_file','directory','remote_file','remote_directory','template']
+        domain = host.split('.')[-2]+ '.' + host.split('.')[-1]
+        res = [:cookbook_file,:directory,:remote_file,:remote_directory,:template,:file]
         if res.include? resource.resource_name
           if !resource.path.include? domain
             return true

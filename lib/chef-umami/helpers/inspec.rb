@@ -81,10 +81,11 @@ module Umami
       def test_cron(resource)
         command = resource.command.gsub(/\/opt\/ruby-2.3.5\/bin\/ruby/, "/opt/chef/embedded/bin/ruby")
         if resource.name =='Coupa Chef Client'
-          command = command.split('--environment')[0]
+          command = command.gsub( /--environment ([a-z]+[0-9]+)/,"--environment \#{coupah}")
           test = ["describe crontab('#{resource.user}') do"]
           test << "its('commands') { should include \"#{command}\"}"
         else
+          command = command.gsub( /--environment ([a-z]+[0-9]+)/,"--environment \#{coupah}")
           test = ["describe crontab('#{resource.user}').commands(\"#{command}\") do"] 
           test << "its('minutes') { should cmp '#{resource.minute}' }"
           test << "its('hours') { should cmp '#{resource.hour}' }"
