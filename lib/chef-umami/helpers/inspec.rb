@@ -81,9 +81,11 @@ module Umami
       def test_cron(resource)
         command = command.gsub(/'/,'\'')
         if resource.name =='Coupa Chef Client'  
+          command = command.gsub( /--environment ([a-z]+[0-9]+)/,"--environment \#{coupah}")
           test = ["describe crontab('#{resource.user}') do"]
           test << "its('commands') { should include \"#{command}\"}"
         else
+          command = command.gsub( /--environment ([a-z]+[0-9]+)/,"--environment \#{coupah}")
           test = ["describe crontab('#{resource.user}').commands(\"#{command}\") do"] 
           test << "its('minutes') { should cmp '#{resource.minute}' }"
           test << "its('hours') { should cmp '#{resource.hour}' }"
@@ -314,7 +316,7 @@ module Umami
         spec = Gem::Specification.find_by_name("chef-umami")
         gem_root = spec.gem_dir
         gem_root + '/lib/chef-umami/helpers/packages.json'
-      end  
+      end
     end
   end
 end
