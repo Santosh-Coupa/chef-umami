@@ -162,7 +162,9 @@ module Umami
           test = [desciption(resource)]
         end
 
-        if !check_in_array(resource.action,:remove)
+        if check_in_array(resource.action,:upgrade)
+          test << "it { should be_installed }"
+        elsif !check_in_array(resource.action,:remove)
           if !resource.version.nil? && !resource.version.empty?
             if data.keys.include? resource.package_name
               version = data[resource.package_name]['version']
@@ -173,9 +175,7 @@ module Umami
             test << "its('version') { should include '#{version}' }"
           else
             test << 'it { should be_installed }'
-          end
-        elsif !check_in_array(resource.action,:upgrade)
-          test << "it { should be_installed }"    
+          end    
         else
             test << 'it { should_not be_installed }'
         end    
