@@ -100,9 +100,9 @@ module Umami
           (cookbook, recipe) = canonical_recipe.split('::')
           # Only write unit tests for the cookbook we're in.
           #next unless cookbook == tested_cookbook
-          next unless check_valid_resource(resource)
           content = [preamble(cookbook, recipe)]
           resources.each do |resource|
+            next unless check_valid_resource(resource)
             if !resource.only_if.empty?
                if resource.only_if[0].continue?
                  content << write_test(resource)
