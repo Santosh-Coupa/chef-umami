@@ -51,7 +51,8 @@ module Umami
         "require_relative '../spec_helper'\n" \
         "\n" \
         "describe '#{cookbook}::#{recipe}' do\n" \
-        "let(:chef_run) { ChefSpec::ServerRunner.new(platform: '#{os[:platform]}').converge(described_recipe) }"
+        "let(:chef_run) { ChefSpec::ServerRunner.new(platform: '#{os[:platform]}').converge(described_recipe) }\n" \
+        "def coupahost \n\s\s\shost = `hostname`.strip\n\s\s\s host.split('.')[0].gsub(/([a-z]+)([0-9]+).*/,'\\1\\2')\nend\ncoupah=coupahost"
       end
 
       def write_spec_helper
@@ -92,9 +93,6 @@ module Umami
         test_output << "end\n"
         test_output.join("\n")
       end
-
-
-
       def generate(recipe_resources = {})
         test_files_written = []
         recipe_resources.each do |canonical_recipe, resources|
@@ -103,6 +101,7 @@ module Umami
           #next unless cookbook == tested_cookbook
           content = [preamble(cookbook, recipe)]
           resources.each do |resource|
+            next unless check_valid_resource(resource)
             if !resource.only_if.empty?
                if resource.only_if[0].continue?
                  content << write_test(resource)
@@ -142,6 +141,20 @@ module Umami
         end
         return servertype
       end
+      def check_valid_resource(resource)
+        host = `hostname`.strip
+        domain = host.split('.')[-2]+ '.' + host.split('.')[-1]
+        res = [:cookbook_file,:directory,:remote_file,:remote_directory,:template,:file]
+        if res.include? resource.resource_name
+          if !resource.path.include? domain
+            return true
+          else
+            return false
+          end
+        else
+          return true
+        end
+      end  
     end
   end
 end

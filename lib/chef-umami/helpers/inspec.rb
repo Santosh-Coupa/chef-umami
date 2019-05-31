@@ -80,10 +80,12 @@ module Umami
 
       def test_cron(resource)
         command = resource.command.gsub(/\/opt\/ruby-2.3.5\/bin\/ruby/, "/opt/chef/embedded/bin/ruby")
-        if resource.name =='Coupa Chef Client'  
+        if resource.name =='Coupa Chef Client' or command.include? "coupa-utl::backup"
+          command = command.gsub( /--environment ([a-z]+[0-9]+)/,"--environment \#{coupah}")
           test = ["describe crontab('#{resource.user}') do"]
           test << "its('commands') { should include \"#{command}\"}"
         else
+          command = command.gsub( /--environment ([a-z]+[0-9]+)/,"--environment \#{coupah}")
           test = ["describe crontab('#{resource.user}').commands(\"#{command}\") do"] 
           test << "its('minutes') { should cmp '#{resource.minute}' }"
           test << "its('hours') { should cmp '#{resource.hour}' }"
@@ -160,7 +162,9 @@ module Umami
           test = [desciption(resource)]
         end
 
-        if !check_in_array(resource.action,:remove)
+        if check_in_array(resource.action,:upgrade,true)
+          test << "it { should be_installed }"
+        elsif !check_in_array(resource.action,:remove)
           if !resource.version.nil? && !resource.version.empty?
             if data.keys.include? resource.package_name
               version = data[resource.package_name]['version']
@@ -171,7 +175,7 @@ module Umami
             test << "its('version') { should include '#{version}' }"
           else
             test << 'it { should be_installed }'
-          end
+          end    
         else
             test << 'it { should_not be_installed }'
         end    
@@ -314,7 +318,7 @@ module Umami
         spec = Gem::Specification.find_by_name("chef-umami")
         gem_root = spec.gem_dir
         gem_root + '/lib/chef-umami/helpers/packages.json'
-      end  
+      end
     end
   end
 end
