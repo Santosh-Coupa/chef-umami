@@ -162,7 +162,7 @@ module Umami
           test = [desciption(resource)]
         end
 
-        if check_in_array(resource.action,:upgrade)
+        if check_in_array(resource.action,:upgrade,true)
           test << "it { should be_installed }"
         elsif !check_in_array(resource.action,:remove)
           if !resource.version.nil? && !resource.version.empty?
