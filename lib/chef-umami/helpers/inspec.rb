@@ -80,7 +80,7 @@ module Umami
 
       def test_cron(resource)
         command = command.gsub(/'/,'\'')
-        if resource.name =='Coupa Chef Client' or command.include? "coupa-utl::backup"
+        if resource.name =='Coupa Chef Client' or command.include? "::backup"
           command = command.gsub( /--environment ([a-z]+[0-9]+)/,"--environment \#{coupah}")
           test = ["describe crontab('#{resource.user}') do"]
           test << "its('commands') { should include \"#{command}\"}"
@@ -162,7 +162,7 @@ module Umami
           test = [desciption(resource)]
         end
 
-        if check_in_array(resource.action,:upgrade)
+        if check_in_array(resource.action,:upgrade,true)
           test << "it { should be_installed }"
         elsif !check_in_array(resource.action,:remove)
           if !resource.version.nil? && !resource.version.empty?
