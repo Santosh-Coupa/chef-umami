@@ -80,7 +80,7 @@ module Umami
 
       def test_cron(resource)
         command = resource.command.gsub(/\/opt\/ruby-2.3.5\/bin\/ruby/, "/opt/chef/embedded/bin/ruby")
-        if resource.name =='Coupa Chef Client' or command.include? "::backup"
+        if resource.name =='Coupa Chef Client' or command.include? "coupa-utl::backup" or command.include? "coupa-db::do_backup"
           command = command.gsub( /--environment ([a-z]+[0-9]+)/,"--environment \#{coupah}")
           test = ["describe crontab('#{resource.user}') do"]
           test << "its('commands') { should include \"#{command}\"}"
