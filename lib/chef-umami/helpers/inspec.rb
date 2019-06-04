@@ -86,7 +86,12 @@ module Umami
           test << "its('commands') { should include \"#{command}\"}"
         else
           command = command.gsub( /--environment ([a-z]+[0-9]+)/,"--environment \#{coupah}")
-          test = ["describe crontab('#{resource.user}').commands(\"#{command}\") do"] 
+          z = "\""
+          if command.include? z
+            test = ["describe crontab('#{resource.user}').commands(\'#{command}\') do"] 
+          else
+            test = ["describe crontab('#{resource.user}').commands(\"#{command}\") do"] 
+          end
           test << "its('minutes') { should cmp '#{resource.minute}' }"
           test << "its('hours') { should cmp '#{resource.hour}' }"
           test << "its('days') { should cmp '#{resource.day}' }"
