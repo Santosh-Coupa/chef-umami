@@ -104,7 +104,7 @@ module Umami
 
       def test_file(resource)
         file_exclude = ['/tmp/wazuh_kibana_installer.py']
-        if file_exclude.include? resource.path
+        if !file_exclude.include? resource.path
           test = ["describe file('#{resource.path}') do"]
           ignor_file = ['/opt/rightscale/etc/motd-complete','/opt/rightscale/etc/motd-failed']
           unless ignor_file.include? resource.path or check_in_array(resource.action,:delete, check_include=true)
