@@ -103,7 +103,7 @@ module Umami
       end      
 
       def test_file(resource)
-        if !check_in_array(resource.action,:nothing, check_include=true) && !resource.path.include? '/tmp'
+        if !check_in_array(resource.action,:nothing, check_include=true) && !resource.path =~ /^\/tmp/
           test = ["describe file('#{resource.path}') do"]
           ignor_file = ['/opt/rightscale/etc/motd-complete','/opt/rightscale/etc/motd-failed']
           unless ignor_file.include? resource.path or check_in_array(resource.action,:delete, check_include=true)
