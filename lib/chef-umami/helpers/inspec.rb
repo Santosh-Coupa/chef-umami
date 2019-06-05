@@ -103,42 +103,47 @@ module Umami
       end      
 
       def test_file(resource)
-        test = ["describe file('#{resource.path}') do"]
-        ignor_file = ['/opt/rightscale/etc/motd-complete','/opt/rightscale/etc/motd-failed']
-        unless ignor_file.include? resource.path or check_in_array(resource.action,:delete, check_include=true)
-          if resource.resource_name =~ /directory/
-            test << 'it { should be_directory }'
-          else
-            test << 'it { should be_file }'
-          end
-          # Sometimes we see GIDs instead of group names.
-          unless resource.group.nil?
-            unless resource.group.is_a?(String) && resource.group.empty?
-              test << "it { should be_grouped_into '#{resource.group}' }"
-            end
-          end
-          # Guard for UIDs versus usernames as well.
-          unless resource.owner.nil?
-            unless resource.owner.is_a?(String) && resource.owner.empty?
-              test << "it { should be_owned_by '#{resource.owner}' }"
-            end
-          end
-          unless resource.mode.nil?
-            if resource.mode.is_a?(String)
-              unless resource.mode.is_a?(Integer) && !resource.mode.empty?
-                  cv = resource.mode.to_i(8)
-                  test << "it { should be_mode #{cv} }"
-              end
+        if !check_in_array(resource.action,:nothing, check_include=true)
+          test = ["describe file('#{resource.path}') do"]
+          ignor_file = ['/opt/rightscale/etc/motd-complete','/opt/rightscale/etc/motd-failed']
+          unless ignor_file.include? resource.path or check_in_array(resource.action,:delete, check_include=true)
+            if resource.resource_name =~ /directory/
+              test << 'it { should be_directory }'
             else
-              unless resource.mode.is_a?(String) && !resource.mode.empty?
-                  test << "it { should be_mode #{resource.mode} }"
+              test << 'it { should be_file }'
+            end
+            # Sometimes we see GIDs instead of group names.
+            unless resource.group.nil?
+              unless resource.group.is_a?(String) && resource.group.empty?
+                test << "it { should be_grouped_into '#{resource.group}' }"
               end
             end
+            # Guard for UIDs versus usernames as well.
+            unless resource.owner.nil?
+              unless resource.owner.is_a?(String) && resource.owner.empty?
+                test << "it { should be_owned_by '#{resource.owner}' }"
+              end
+            end
+            unless resource.mode.nil?
+              if resource.mode.is_a?(String)
+                unless resource.mode.is_a?(Integer) && !resource.mode.empty?
+                    cv = resource.mode.to_i(8)
+                    test << "it { should be_mode #{cv} }"
+                end
+              else
+                unless resource.mode.is_a?(String) && !resource.mode.empty?
+                    test << "it { should be_mode #{resource.mode} }"
+                end
+              end
+            end
+          else
+            test << "it { should_not exist }"
+          else
+            test = []
           end
-        else
-          test << "it { should_not exist }"
+          test << 'end'
         end
-        test << 'end'
+
         test.join("\n")
       end
       alias_method :test_cookbook_file, :test_file
