@@ -138,12 +138,11 @@ module Umami
             end
           else
             test << "it { should_not exist }"
-          else
-            test = []
           end
           test << 'end'
+        else
+          test =[]
         end
-
         test.join("\n")
       end
       alias_method :test_cookbook_file, :test_file
