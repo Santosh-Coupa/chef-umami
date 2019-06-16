@@ -20,7 +20,7 @@ Gem::Specification.new do |gem|
   gem.executables << 'umami'
   gem.executables << 'generate_unit'
   gem.executables << 'generate_unit.rb'
-  gem.add_dependency 'chef', '~> 14.10'
+  gem.add_dependency 'chef', '~> 14.3'
   #gem.add_dependency 'chef-dk', '~> 3.8'
   gem.add_dependency 'rubocop', '= 0.47'
 end

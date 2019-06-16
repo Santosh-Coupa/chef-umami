@@ -140,7 +140,7 @@ module Umami
         else
           servertype = host.split('.')[0].gsub(/[0-9]|srv/,"")
         end
-        return servertype
+        return servertype.gsub(/qas/,'dev').gsub(/sbx|sbx|prd/,'prd')
       end
       def check_valid_resource(resource)
         host = `hostname`.strip

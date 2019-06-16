@@ -1,5 +1,4 @@
 source 'https://rubygems.org' do
-  gem 'chef', '>=14.10'
-  gem 'chef-dk', '>=3.8'
+  gem 'chef', '>=14.3'
   gem 'rubocop'
 end

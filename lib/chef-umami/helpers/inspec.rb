@@ -79,8 +79,8 @@ module Umami
       end
 
       def test_cron(resource)
-        command = command.gsub(/'/,'\'')
-        if resource.name =='Coupa Chef Client' or command.include? "coupa-utl::backup" or command.include? "coupa-db::do_backup"
+        command = resource.command.gsub(/'/,'\'')
+        if resource.name =='Coupa Chef Client' or command.include? "utl_backup" or command.include? "db_backup"
           command = command.gsub( /--environment ([a-z]+[0-9]+)/,"--environment \#{coupah}")
           test = ["describe crontab('#{resource.user}') do"]
           test << "its('commands') { should include \"#{command}\"}"
@@ -296,7 +296,7 @@ module Umami
       def test_link(resource)
         if !resource.to.include? "/mnt/ephemeral"
           target = resource.to.gsub(/\/home/, "/mnt/ephemeral/home")
-          target = target.gsub(/\/etc\/coupa/, "/mnt/ephemeral/etc/coupa")
+          #target = target.gsub(/\/etc\/coupa/, "/mnt/ephemeral/etc/coupa")
           target = target.gsub(/\/usr\/local\/coupa/, "/mnt/ephemeral/usr/local/coupa")
           target = target.gsub(/ca-bundle.crt/, "ca-bundle-complete.crt")
           target = target.gsub(/\/opt\/rbenv/, "/opt/rbenv-0.4.0")
