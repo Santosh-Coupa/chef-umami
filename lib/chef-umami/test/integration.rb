@@ -60,9 +60,9 @@ module Umami
       # Raise NoMethodError for any other failed calls.
       def method_missing(meth, *args, &block)
         case meth
-        when /^test_/
-          "# #{meth} is not currently defined. Stay tuned for updates."
-        else
+          when /^test_/
+            "# #{meth} is not currently defined. Stay tuned for updates."
+          else
           raise NoMethodError
         end
       end
@@ -107,7 +107,7 @@ module Umami
           servertype = host.split('.')[0].gsub(/([a-z]+)([0-9]+)([a-z]+)([0-9]+)/,'\1\3\4')  
         else
           servertype = host.split('.')[0].gsub(/[0-9]|srv/,"")
-        endsx
+        end
         return servertype.gsub(/qas/,'dev').gsub(/sbx|sbx|prd/,'prd')
       end
 
