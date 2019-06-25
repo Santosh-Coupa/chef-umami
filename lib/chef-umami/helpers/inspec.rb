@@ -256,6 +256,7 @@ module Umami
       end
       
       def test_service(resource)
+        ignore_check = ['mysql']
         test = ["describe service('#{resource.name}') do"]
         if !resource.ignore_failure
           if check_in_array(resource.action,:stop)
@@ -294,20 +295,20 @@ module Umami
       #  puts "#test execute missing"
       #end 
       def test_link(resource)
-        if !resource.to.include? "/mnt/ephemeral"
-          target = resource.to.gsub(/\/home/, "/mnt/ephemeral/home")
+        #if !resource.to.include? "/mnt/ephemeral"
+        #  target = resource.to.gsub(/\/home/, "/mnt/ephemeral/home")
           #target = target.gsub(/\/etc\/coupa/, "/mnt/ephemeral/etc/coupa")
-          target = target.gsub(/\/usr\/local\/coupa/, "/mnt/ephemeral/usr/local/coupa")
-          target = target.gsub(/ca-bundle.crt/, "ca-bundle-complete.crt")
-          target = target.gsub(/\/opt\/rbenv/, "/opt/rbenv-0.4.0")
-        else
-          target = resource.to.gsub(/ca-bundle.crt/, "ca-bundle-complete.crt")
-        end
+        #  target = target.gsub(/\/usr\/local\/coupa/, "/mnt/ephemeral/usr/local/coupa")
+        #  target = target.gsub(/ca-bundle.crt/, "ca-bundle-complete.crt")
+        #  target = target.gsub(/\/opt\/rbenv/, "/opt/rbenv-0.4.0")
+        #else
+        #  target = resource.to.gsub(/ca-bundle.crt/, "ca-bundle-complete.crt")
+        #end
      
         #/etc/coupa -> /mnt/ephemeral/etc/coupa
         test = ["describe file('#{resource.name}') do"]
         test << "it { should be_symlink }"
-        test << "it { should be_linked_to '#{target}' }"
+        test << "its('shallow_link_path') { should be_linked_to '#{target}' }"
         test << 'end'
         test.join("\n")
       end
