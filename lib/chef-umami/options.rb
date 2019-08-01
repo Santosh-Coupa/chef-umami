@@ -25,6 +25,7 @@ module Umami
       options[:test_root] = 'spec'
       options[:unit_tests] = true
       options[:cookbooks_dir] = '/var/chef/cache/cookbooks/coupa-*'
+      options[:all_supported_cookbooks] = ''
       parser = OptionParser.new do |opts|
         opts.banner = opts.banner + "\n\nA taste you won't forget!\n\n"
         opts.on('-h', '--help', 'Prints this help message') {
